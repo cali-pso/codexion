@@ -1,35 +1,30 @@
-#include <pthread.h>
-#include <stdio.h>
+#include "header.h"
 
-typedef struct s_locker
+int main(int argc, char **argv)
 {
-	int value;
-	pthread_mutex_t lock;
-}	t_locker;
-
-void *tryingshitout(void *arg)
-{
-	t_locker *actual_arg = arg;
-	pthread_mutex_lock(&(actual_arg->lock));
-	printf("thread %lu with value %i\n\n", pthread_self(), actual_arg->value);
-	actual_arg->value++;
-	pthread_mutex_unlock(&(actual_arg->lock));
-	return NULL;
+	t_parameters *parameters = ft_parse(argc, argv);
+	for (int i = 0; i < argc; i++)
+	{
+		printf("%i\n\n", atoi(argv[i]));
+	}
+	return 0;
 }
 
-int main()
+t_parameters *ft_parse(int argc, char **argv)
 {
-	t_locker locker1;
-	locker1.value = 12;
-	pthread_mutex_init(&locker1.lock, NULL);
+	t_parameters *parameters;
 
-	pthread_t thread1;
-	pthread_t thread2;
-	pthread_create(&thread1, NULL, tryingshitout, &locker1);
-	pthread_create(&thread2, NULL, tryingshitout, &locker1);
+	parameters = (t_parameters *) malloc(sizeof(t_parameters));
+	if (argc != 9)
+		return parameters;
+	parameters->number_of_coders = atoi(argv[1]);
+	parameters->time_to_burnout = atoi(argv[2]);
+	parameters->time_to_compile = atoi(argv[3]);
+	parameters->time_to_debug = atoi(argv[4]);
+	parameters->time_to_refactor = atoi(argv[5]);
+	parameters->number_of_compiles_required = atoi(argv[6]);
+	parameters->dongle_cooldown = atoi(argv[7]);
+	parameters->scheduler = argv[8];
 
-	pthread_join(thread1, NULL);
-	pthread_join(thread2, NULL);
-	pthread_mutex_destroy(&locker1.lock);
-	return 0;
+	return parameters;
 }
