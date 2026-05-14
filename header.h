@@ -2,6 +2,7 @@
 #define HEADER_H
 
 # include <pthread.h>
+# include <string.h>
 # include <stdio.h>
 # include <stdlib.h>
 
@@ -17,6 +18,8 @@ typedef struct s_parameters
 	char	*scheduler;
 }			t_parameters;
 
-t_parameters *ft_parse(int argc, char **argv);
+t_parameters	*ft_parse(int argc, char **argv);
+bool			ft_check_numbers(char **argv);
+bool			ft_check_str(char **argv);
 
 #endif
