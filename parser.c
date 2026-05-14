@@ -8,19 +8,20 @@ t_parameters *ft_parse(int argc, char **argv)
 	if (argc != 9 || !ft_check_numbers(argv) || !ft_check_str(argv))
 		return parameters;
 	parameters = (t_parameters *) malloc(sizeof(t_parameters));
-	parameters->number_of_coders = atoi(argv[1]);
-	parameters->time_to_burnout = atoi(argv[2]);
-	parameters->time_to_compile = atoi(argv[3]);
-	parameters->time_to_debug = atoi(argv[4]);
-	parameters->time_to_refactor = atoi(argv[5]);
-	parameters->number_of_compiles_required = atoi(argv[6]);
-	parameters->dongle_cooldown = atoi(argv[7]);
+	parameters->nb_cdrs = atoi(argv[1]);
+	parameters->tt_burnout = atoi(argv[2]);
+	parameters->tt_compile = atoi(argv[3]);
+	parameters->tt_debug = atoi(argv[4]);
+	parameters->tt_refactor = atoi(argv[5]);
+	parameters->nb_compiles_required = atoi(argv[6]);
+	parameters->dngl_cooldown = atoi(argv[7]);
 	parameters->scheduler = argv[8];
+	pthread_mutex_init(&parameters->output_lock, NULL);
 
 	return parameters;
 }
 
-bool	ft_check_numbers(char **argv)
+int	ft_check_numbers(char **argv)
 {
 	int i;
 	int	y;
@@ -34,17 +35,17 @@ bool	ft_check_numbers(char **argv)
 		while (y < len)
 		{
 			if (argv[i][y] < '0' || argv[i][y] > '9')
-				return false;
+				return 0;
 			y++;
 		}
 		i++;
 	}
-	return true;
+	return 1;
 }
 
-bool	ft_check_str(char **argv)
+int	ft_check_str(char **argv)
 {
 	if (strcmp("fifo", argv[8]) != 0 && strcmp("edf", argv[8]) != 0)
-		return false;
-	return true;
+		return 0;
+	return 1;
 }
