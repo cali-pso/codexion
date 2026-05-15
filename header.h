@@ -30,7 +30,8 @@ typedef struct s_cdr_info
 typedef struct s_dngl_info
 {
 	int				dngl_id;
-	pthread_mutex_t	owned;
+	int				owned;
+	pthread_mutex_t	lock;
 }					t_dngl_info;
 
 t_parameters	*ft_parse(int argc, char **argv);

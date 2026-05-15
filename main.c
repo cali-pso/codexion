@@ -12,10 +12,12 @@ void	*orchestrator(void	*arg)
 {
 	pthread_t		*coders;
 	t_parameters	*param;
+	t_dngl_info		*dongles;
 	int				i;
 
 	param = arg;
 	coders = (pthread_t *) malloc(sizeof(pthread_t) * param->nb_cdrs); 
+	dongles = (t_dngl_info *) malloc(sizeof(t_dngl_info) * param->nb_cdrs);
 	i = 0;
 	while (i < param->nb_cdrs)
 		pthread_create(&coders[i], NULL, NULL, NULL);

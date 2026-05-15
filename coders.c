@@ -25,3 +25,8 @@ t_cdr_info	*ft_generate_coders_info(t_parameters *param)
 	}
 	return cdrs_info;
 }
+
+void	*coder(void *arg)
+{
+	return NULL;
+}
