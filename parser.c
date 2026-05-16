@@ -16,7 +16,6 @@ t_parameters *ft_parse(int argc, char **argv)
 	parameters->nb_compiles_required = atoi(argv[6]);
 	parameters->dngl_cooldown = atoi(argv[7]);
 	parameters->scheduler = argv[8];
-	pthread_mutex_init(&parameters->output_lock, NULL);
 
 	return parameters;
 }

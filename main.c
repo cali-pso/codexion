@@ -2,24 +2,57 @@
 
 int main(int argc, char **argv)
 {
-	t_parameters *parameters = ft_parse(argc, argv);
-	t_cdr_info *coders_info = ft_generate_coders_info(parameters);
-	pthread_mutex_destroy(&parameters->output_lock);
+	t_system	*system;
+
+	system = ft_init_system(system, argc, argv);
+
 	return 0;
+}
+
+t_system		*ft_init_system(t_system *system, int argc, char **argv)
+{
+	system = (t_system *) malloc(sizeof(t_system));
+	if (!system)
+		return NULL;
+	system->parameters = ft_parse(argc, argv);
+	system->cdrs_info = ft_generate_coders_info(system->parameters);
+	system->queue = (t_queue *) malloc(sizeof(t_queue));
+	pthread_mutex_init(&(system->queue->lock), NULL);
+	system->running = 0;
+
+	return system;
 }
 
 void	*orchestrator(void	*arg)
 {
-	pthread_t		*coders;
-	t_parameters	*param;
-	t_dngl_info		*dongles;
-	int				i;
+	t_system	*system;
+	t_queue		*queue;
+	t_request	*cur_req;
+	int			req_dealt;
 
-	param = arg;
-	coders = (pthread_t *) malloc(sizeof(pthread_t) * param->nb_cdrs); 
-	dongles = (t_dngl_info *) malloc(sizeof(t_dngl_info) * param->nb_cdrs);
-	i = 0;
-	while (i < param->nb_cdrs)
-		pthread_create(&coders[i], NULL, NULL, NULL);
+	system = (t_system *) arg;
+	queue = system->queue;
+
+	while (system->running)
+	{
+		pthread_mutex_lock(&queue->lock);
+		while (queue->node == NULL && system->running)
+			pthread_cond_wait(&queue->cond, &queue->lock);
+
+		if (!system->running)
+		{
+			pthread_mutex_unlock(&queue->lock);
+			break ;
+		}
+
+		cur_req = ft_get_priority_req(system->parameters->scheduler, queue);
+		req_dealt = 0;
+
+		while (cur_req != NULL)
+		{
+			// dispatch dongles
+		}
+	}
+
 	return NULL;
 }
