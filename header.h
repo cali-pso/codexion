@@ -1,5 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   header.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
+/*   Updated: 2026/05/17 17:37:48 by rapoggi          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef HEADER_H
-#define HEADER_H
+# define HEADER_H
 
 # include <pthread.h>
 # include <string.h>
@@ -7,7 +19,7 @@
 # include <stdlib.h>
 
 typedef struct s_parameters
-{	
+{
 	int				nb_cdrs;
 	int				tt_burnout;
 	int				tt_compile;
