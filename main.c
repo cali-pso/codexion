@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:38:03 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/17 17:40:57 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/17 19:57:01 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,12 +52,13 @@ void	*orchestrator(void	*arg)
 			pthread_mutex_unlock(&queue->lock);
 			break ;
 		}
-		cur_req = ft_get_priority_req(system->parameters->scheduler, queue);
-		req_dealt = 0;
-		while (cur_req != NULL)
-		{
-			// dispatch dongles
-		}
+		printf("ok man\n");
+////	cur_req = ft_get_priority_req(system->parameters->scheduler, queue);
+////	req_dealt = 0;
+////	while (cur_req != NULL)
+////	{
+////		// dispatch dongles
+////	}
 	}
 	return (NULL);
 }

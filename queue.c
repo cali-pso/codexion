@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 18:25:23 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/17 18:25:47 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/17 19:46:48 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,21 @@ t_request	*ft_get_priority_req(char *scheduler, t_queue *queue)
 		cur = cur->next;
 	}
 	return (prior);
+}
+
+void	ft_push_node(t_queue *queue, t_request *node)
+{
+	if (!queue)
+		return ;
+	else if (!queue->node)
+		queue->node = node;
+	else
+	{
+		queue->node->prev = node;
+		node->next = queue->node;
+		queue->node = node;
+	}
+	return ;
 }
 
 void	ft_pop_node(t_queue *queue, t_request *node)
