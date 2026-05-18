@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/17 20:10:05 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/18 20:50:07 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ typedef struct s_cdr_info
 	int				owned_dngls[2];
 	int				compiles_done;
 	int				last_compile;
+	int				dummy;
 	pthread_cond_t	cond;
 }		t_cdr_info;
 
@@ -80,11 +81,16 @@ typedef struct s_cdr_wrpr
 t_system		*ft_init_system(t_system *system, int argc, char **argv);
 t_parameters	*ft_parse(int argc, char **argv);
 t_cdr_info		*ft_generate_coders_info(t_parameters *parameters);
-void			ft_create_request(t_queue *queue, t_cdr_info *cdr, int tt_bo);
+t_request		*ft_create_request(t_queue *queue, t_cdr_info *cdr, int tt_bo);
 t_request		*ft_get_priority_req(char *scheduler, t_queue *queue);
 void			ft_pop_node(t_queue *queue, t_request *node);
 void			ft_push_node(t_queue *queue, t_request *node);
 int				ft_check_numbers(char **argv);
 int				ft_check_str(char **argv);
+void			*ft_orchestrator(void *arg);
+pthread_t		*ft_init_coders(t_system *system);
+void			*ft_coder(void *arg);
+void			ft_wait(pthread_t *orchestr, pthread_t *coders, t_system *system);
+int				ft_queue_len(t_queue *queue);
 
 #endif

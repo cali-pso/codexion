@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 18:25:23 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/17 19:46:48 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/18 22:00:21 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,17 +30,29 @@ t_request	*ft_get_priority_req(char *scheduler, t_queue *queue)
 	return (prior);
 }
 
+t_request	*ft_get_queue_last(t_queue *queue)
+{
+	t_request	*last;
+
+	last = queue->node;
+	while (last && last->next)
+		last = last->next;
+	return (last);
+}
+
 void	ft_push_node(t_queue *queue, t_request *node)
 {
+	t_request	*last;
+
 	if (!queue)
 		return ;
 	else if (!queue->node)
 		queue->node = node;
 	else
 	{
-		queue->node->prev = node;
-		node->next = queue->node;
-		queue->node = node;
+		last = ft_get_queue_last(queue);
+		last->next = node;
+		node->prev = last;
 	}
 	return ;
 }
@@ -62,4 +74,19 @@ void	ft_pop_node(t_queue *queue, t_request *node)
 		queue->node = next;
 	free(node);
 	return ;
+}
+
+int	ft_queue_len(t_queue *queue)
+{
+	int	i;
+	t_request	*cur;
+
+	i = 0;
+	cur = queue->node;
+	while (cur)
+	{
+		i++;
+		cur = cur->next;
+	}
+	return (i);
 }
