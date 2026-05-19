@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:38:03 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/18 22:17:08 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/20 01:43:56 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,28 +33,29 @@ void	ft_wait(pthread_t *orchestr, pthread_t *coders, t_system *system)
 	int	i;
 
 	i = 0;
-	while (i < system->parameters->nb_cdrs)
+	while (i < system->param->nb_cdrs)
 	{
 		pthread_join(coders[i], NULL);
 		i++;
 	}
-	printf("coders done");
 	pthread_join(*orchestr, NULL);
 }
 
-t_system	*ft_init_system(t_system *system, int argc, char **argv)
+t_system	*ft_init_system(t_system *sys, int argc, char **argv)
 {
-	system = (t_system *) malloc(sizeof(t_system));
-	if (!system)
+	sys = (t_system *) malloc(sizeof(t_system));
+	if (!sys)
 		return (NULL);
-	system->parameters = ft_parse(argc, argv);
-	system->cdrs_info = ft_generate_coders_info(system->parameters);
-	system->queue = (t_queue *) malloc(sizeof(t_queue));
-	system->queue->node = NULL;
-	pthread_mutex_init(&(system->queue->lock), NULL);
-	pthread_cond_init(&(system->queue->cond), NULL);
-	system->running = 1;
-	return (system);
+	sys->param = ft_parse(argc, argv);
+	sys->dngls_info = ft_generate_dngls_info(sys->param);
+	sys->cdrs_info = ft_generate_coders_info(sys->param, sys->dngls_info);
+	sys->queue = (t_queue *) malloc(sizeof(t_queue));
+	sys->queue->node = NULL;
+	pthread_mutex_init(&(sys->queue->lock), NULL);
+	pthread_cond_init(&(sys->queue->cond), NULL);
+	pthread_mutex_init(&(sys->lock), NULL);
+	sys->running = 1;
+	return (sys);
 }
 
 void	*ft_orchestrator(void *arg)
@@ -62,6 +63,8 @@ void	*ft_orchestrator(void *arg)
 	t_system	*system;
 	t_queue		*queue;
 	t_request	*cur_req;
+	t_cdr_info	*cdr;
+	t_request	*new_req;
 
 	system = (t_system *) arg;
 	queue = system->queue;
@@ -75,16 +78,47 @@ void	*ft_orchestrator(void *arg)
 			pthread_mutex_unlock(&queue->lock);
 			break ;
 		}
-		printf("orchestrator reaching for request %i left\n", ft_queue_len(queue));
-		cur_req = ft_get_priority_req(system->parameters->scheduler, queue);
+		cur_req = ft_get_priority_req(system->param->scheduler, queue);
 		ft_pop_node(queue, cur_req);
-		printf("treating coder %i\n", cur_req->cdr->cdr_id);
-		cur_req->cdr->dummy = 1;
 		pthread_mutex_unlock(&queue->lock);
-		pthread_cond_broadcast(&cur_req->cdr->cond);
-		if (ft_queue_len(queue) == 0)
-			system->running = 0;
+		// p
 
+		cdr = cur_req->cdr;
+		printf("\npicked up request from %i\n", cdr->id);
+		while (!cdr->req_met)
+		{
+			ft_lock_dngls(cdr->dngls);
+			if (ft_check_dngls(cdr->dngls))
+			{
+				ft_unlock_dngls(cdr->dngls);
+				cdr->req_met = 1;
+				pthread_cond_broadcast(&cdr->cond);
+			}
+			else
+			{
+				ft_unlock_dngls(cdr->dngls);
+				pthread_mutex_lock(&queue->lock);
+				while (queue->node == NULL && system->running)
+					pthread_cond_wait(&queue->cond, &queue->lock);
+				new_req = ft_get_priority_req(system->param->scheduler, queue);
+				printf("\nre------picked %i\n\n", new_req->cdr->id);
+				ft_push_node(queue, cur_req);
+				pthread_mutex_unlock(&queue->lock);
+				cur_req = new_req;
+				cdr = cur_req->cdr;
+			}
+		}
 	}
 	return (NULL);
+}
+
+long long	ft_get_time()
+{
+	struct timeval	tv;
+	long long		time_in_ms;
+
+	if (gettimeofday(&tv, NULL) == -1)
+		return (-1);
+	time_in_ms = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+	return (time_in_ms);
 }

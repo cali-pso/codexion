@@ -6,13 +6,13 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:33:55 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/18 22:17:18 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/20 01:43:57 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 
-t_cdr_info	*ft_generate_coders_info(t_parameters *param)
+t_cdr_info	*ft_generate_coders_info(t_parameters *param, t_dngl_info *dngls)
 {
 	t_cdr_info	*cdrs_info;
 	t_cdr_info	*cdr;
@@ -25,13 +25,10 @@ t_cdr_info	*ft_generate_coders_info(t_parameters *param)
 	while (i < nb_cdrs)
 	{
 		cdr = &cdrs_info[i];
-		cdr->cdr_id = i + 1;
-		cdr->nearby_dngls[0] = i;
-		cdr->nearby_dngls[1] = (i + nb_cdrs + 1) % nb_cdrs;
-		cdr->owned_dngls[0] = 0;
-		cdr->owned_dngls[1] = 0;
+		cdr->id = i + 1;
+		cdr->dngls[0] = &dngls[i];
+		cdr->dngls[1] = &dngls[(i + nb_cdrs + 1) % nb_cdrs];
 		cdr->compiles_done = 0;
-		cdr->dummy = 0;
 		pthread_cond_init(&(cdr->cond), NULL);
 		i++;
 	}
@@ -45,7 +42,7 @@ pthread_t	*ft_init_coders(t_system *system)
 	int			i;
 	int			nb_cdrs;
 
-	nb_cdrs = system->parameters->nb_cdrs;
+	nb_cdrs = system->param->nb_cdrs;
 	cdrs = (pthread_t *) malloc(sizeof(pthread_t) * nb_cdrs);
 	i = 0;
 	while (i < nb_cdrs)
@@ -66,14 +63,28 @@ void	*ft_coder(void *arg)
 
 	system = ((t_cdr_wrpr *) arg)->system;
 	self = ((t_cdr_wrpr *) arg)->cdr;
-	printf("\ncoder %i pushing request\n\n", self->cdr_id);
-	pthread_mutex_lock(&system->queue->lock);
-	ft_create_request(system->queue, self, system->parameters->tt_burnout);
-	pthread_cond_broadcast(&system->queue->cond);
-	while (self->dummy == 0 && system->running)
-		pthread_cond_wait(&self->cond, &system->queue->lock);
-	printf("\n%i gotem\n\n", self->cdr_id);
-	pthread_mutex_unlock(&system->queue->lock);
+	while (self->compiles_done < system->param->nb_compiles_required)
+	{
+		printf("\ncoder %i pushing request -", self->id);
+		pthread_mutex_lock(&system->queue->lock);
+		ft_create_request(system->queue, self, system->param->tt_burnout);
+		pthread_mutex_unlock(&system->queue->lock);
+		pthread_cond_broadcast(&system->queue->cond);
+		printf("	sent\n\n");
+
+		pthread_mutex_lock(&self->lock);
+		while (self->req_met == 0 && system->running)
+			pthread_cond_wait(&self->cond, &self->lock);
+		ft_lock_dngls(self->dngls);
+		pthread_mutex_unlock(&self->lock);
+		printf("\n%i YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAh\n\n", self->id);
+		usleep(system->param->tt_compile * 10);
+		ft_give_dngl(self->dngls);
+		self->req_met = 0;
+		printf("\n%i DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONE\n\n", self->id);
+
+		self->compiles_done++;
+	}
 
 	free(arg);
 	return (NULL);

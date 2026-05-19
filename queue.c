@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 18:25:23 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/18 22:00:21 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/19 14:54:09 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,6 @@ void	ft_pop_node(t_queue *queue, t_request *node)
 		next->prev = prev;
 	if (queue->node == node)
 		queue->node = next;
-	free(node);
 	return ;
 }
 

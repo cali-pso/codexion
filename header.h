@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/18 20:50:07 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/20 00:42:21 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <string.h>
 # include <stdio.h>
 # include <stdlib.h>
+# include <unistd.h>
+# include <sys/time.h>
 
 typedef struct s_parameters
 {
@@ -30,24 +32,25 @@ typedef struct s_parameters
 	char			*scheduler;
 }			t_parameters;
 
-typedef struct s_cdr_info
-{
-	int				cdr_id;
-	int				nearby_dngls[2];
-	int				owned_dngls[2];
-	int				compiles_done;
-	int				last_compile;
-	int				dummy;
-	pthread_cond_t	cond;
-}		t_cdr_info;
-
 typedef struct s_dngl_info
 {
-	int				dngl_id;
-	int				owned;
-	int				released_time;
+	int				id;
+	int				held;
+	int				free_at;
+	int				cooldown;
 	pthread_mutex_t	lock;
 }					t_dngl_info;
+
+typedef struct s_cdr_info
+{
+	int				id;
+	int				compiles_done;
+	int				last_compile;
+	int				req_met;
+	t_dngl_info		*dngls[2];
+	pthread_cond_t	cond;
+	pthread_mutex_t	lock;
+}		t_cdr_info;
 
 typedef struct s_request
 {
@@ -66,10 +69,12 @@ typedef struct s_queue
 
 typedef struct s_system
 {
-	t_parameters	*parameters;
+	t_parameters	*param;
 	t_cdr_info		*cdrs_info;
+	t_dngl_info		*dngls_info;
 	t_queue			*queue;
 	int				running;
+	pthread_mutex_t	lock;
 }					t_system;
 
 typedef struct s_cdr_wrpr
@@ -80,7 +85,8 @@ typedef struct s_cdr_wrpr
 
 t_system		*ft_init_system(t_system *system, int argc, char **argv);
 t_parameters	*ft_parse(int argc, char **argv);
-t_cdr_info		*ft_generate_coders_info(t_parameters *parameters);
+t_cdr_info		*ft_generate_coders_info(t_parameters *parameters, t_dngl_info *dngls);
+t_dngl_info		*ft_generate_dngls_info(t_parameters *param);
 t_request		*ft_create_request(t_queue *queue, t_cdr_info *cdr, int tt_bo);
 t_request		*ft_get_priority_req(char *scheduler, t_queue *queue);
 void			ft_pop_node(t_queue *queue, t_request *node);
@@ -92,5 +98,12 @@ pthread_t		*ft_init_coders(t_system *system);
 void			*ft_coder(void *arg);
 void			ft_wait(pthread_t *orchestr, pthread_t *coders, t_system *system);
 int				ft_queue_len(t_queue *queue);
+void			ft_take_dngl(t_dngl_info *dngls[2]);
+void			ft_give_dngl(t_dngl_info *dngls[2]);
+void			ft_own_dngl(t_dngl_info *dngls[2]);
+void			ft_lock_dngls(t_dngl_info *dngls[2]);
+void			ft_unlock_dngls(t_dngl_info *dngls[2]);
+int				ft_check_dngls(t_dngl_info *dngls[2]);
+long long		ft_get_time();
 
 #endif
