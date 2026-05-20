@@ -27,6 +27,7 @@ t_request	*ft_get_priority_req(char *scheduler, t_queue *queue)
 			prior = cur;
 		cur = cur->next;
 	}
+	ft_pop_node(queue, prior);
 	return (prior);
 }
 

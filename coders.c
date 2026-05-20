@@ -67,21 +67,26 @@ void	*ft_coder(void *arg)
 	{
 		printf("\ncoder %i pushing request -", self->id);
 		pthread_mutex_lock(&system->queue->lock);
+		printf("gotqueue\n");
 		ft_create_request(system->queue, self, system->param->tt_burnout);
-		pthread_mutex_unlock(&system->queue->lock);
 		pthread_cond_broadcast(&system->queue->cond);
+		pthread_mutex_unlock(&system->queue->lock);
 		printf("	sent\n\n");
 
 		pthread_mutex_lock(&self->lock);
 		while (self->req_met == 0 && system->running)
 			pthread_cond_wait(&self->cond, &self->lock);
-		ft_lock_dngls(self->dngls);
-		pthread_mutex_unlock(&self->lock);
 		printf("\n%i YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAh\n\n", self->id);
-		usleep(system->param->tt_compile * 10);
-		ft_give_dngl(self->dngls);
 		self->req_met = 0;
+		pthread_mutex_unlock(&self->lock);
+		usleep(system->param->tt_compile * 1000);
 		printf("\n%i DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONE\n\n", self->id);
+		ft_lock_dngls(self->dngls);
+		printf("locked\n\n");
+		ft_give_dngl(self->dngls);
+		printf("gave\n\n");
+		ft_unlock_dngls(self->dngls);
+		printf("unlocked\n\n");
 
 		self->compiles_done++;
 	}

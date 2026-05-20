@@ -36,8 +36,16 @@ t_dngl_info	*ft_generate_dngls_info(t_parameters *param)
 
 void	ft_lock_dngls(t_dngl_info *dngls[2])
 {
-	pthread_mutex_lock(&dngls[0]->lock);
-	pthread_mutex_lock(&dngls[1]->lock);
+	if (dngls[0]->id < dngls[1]->id)
+	{
+        pthread_mutex_lock(&dngls[0]->lock);
+        pthread_mutex_lock(&dngls[1]->lock);
+    }
+	else 
+	{
+        pthread_mutex_lock(&dngls[1]->lock);
+        pthread_mutex_lock(&dngls[0]->lock);
+    }
 	return ;
 }
 
@@ -74,6 +82,7 @@ void ft_give_dngl(t_dngl_info *dngls[2])
 	{
 		dngls[i]->held = 0;
 		dngls[i]->free_at = ft_get_time() + dngls[i]->cooldown;
+		i++;
 	}
 	return ;
 }

@@ -64,7 +64,7 @@ void	*ft_orchestrator(void *arg)
 	t_queue		*queue;
 	t_request	*cur_req;
 	t_cdr_info	*cdr;
-	t_request	*new_req;
+	int			is_met;
 
 	system = (t_system *) arg;
 	queue = system->queue;
@@ -79,33 +79,31 @@ void	*ft_orchestrator(void *arg)
 			break ;
 		}
 		cur_req = ft_get_priority_req(system->param->scheduler, queue);
-		ft_pop_node(queue, cur_req);
 		pthread_mutex_unlock(&queue->lock);
-		// p
 
 		cdr = cur_req->cdr;
 		printf("\npicked up request from %i\n", cdr->id);
-		while (!cdr->req_met)
+		is_met = 0;
+		while (!is_met)
 		{
+			pthread_mutex_lock(&cdr->lock);
 			ft_lock_dngls(cdr->dngls);
 			if (ft_check_dngls(cdr->dngls))
 			{
+				ft_own_dngl(cdr->dngls);
 				ft_unlock_dngls(cdr->dngls);
 				cdr->req_met = 1;
+				is_met = 1;
 				pthread_cond_broadcast(&cdr->cond);
+				pthread_mutex_unlock(&cdr->lock);
 			}
 			else
 			{
 				ft_unlock_dngls(cdr->dngls);
 				pthread_mutex_lock(&queue->lock);
-				while (queue->node == NULL && system->running)
-					pthread_cond_wait(&queue->cond, &queue->lock);
-				new_req = ft_get_priority_req(system->param->scheduler, queue);
-				printf("\nre------picked %i\n\n", new_req->cdr->id);
 				ft_push_node(queue, cur_req);
 				pthread_mutex_unlock(&queue->lock);
-				cur_req = new_req;
-				cdr = cur_req->cdr;
+				pthread_mutex_unlock(&cdr->lock);
 			}
 		}
 	}
