@@ -45,7 +45,7 @@ typedef struct s_cdr_info
 {
 	int				id;
 	int				compiles_done;
-	int				last_compile;
+	long long		last_compile;
 	int				req_met;
 	t_dngl_info		*dngls[2];
 	pthread_cond_t	cond;
@@ -67,6 +67,11 @@ typedef struct s_queue
 	pthread_cond_t	cond;
 }					t_queue;
 
+typedef struct s_output
+{
+	pthread_mutex_t	lock;
+}					t_output;
+
 typedef struct s_system
 {
 	t_parameters	*param;
@@ -74,6 +79,8 @@ typedef struct s_system
 	t_dngl_info		*dngls_info;
 	t_queue			*queue;
 	int				running;
+	t_output		*output;
+	long long		start_time;
 	pthread_mutex_t	lock;
 }					t_system;
 
@@ -100,10 +107,13 @@ void			ft_wait(pthread_t *orchestr, pthread_t *coders, t_system *system);
 int				ft_queue_len(t_queue *queue);
 void			ft_take_dngl(t_dngl_info *dngls[2]);
 void			ft_give_dngl(t_dngl_info *dngls[2]);
+void			ft_take_dngls(t_cdr_wrpr *wrpr);
 void			ft_own_dngl(t_dngl_info *dngls[2]);
 void			ft_lock_dngls(t_dngl_info *dngls[2]);
 void			ft_unlock_dngls(t_dngl_info *dngls[2]);
 int				ft_check_dngls(t_dngl_info *dngls[2]);
+void			ft_print_dngl_state(t_cdr_wrpr *wrpr, char *state);
+void			ft_print_took_dngl(t_cdr_wrpr *wrpr);
 long long		ft_get_time();
 
 #endif

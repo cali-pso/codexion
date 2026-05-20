@@ -49,6 +49,44 @@ void	ft_lock_dngls(t_dngl_info *dngls[2])
 	return ;
 }
 
+void	ft_print_took_dngl(t_cdr_wrpr *wrpr)
+{
+	t_cdr_info	*cdr;
+	t_system	*sys;
+	long long	now;
+
+	cdr = wrpr->cdr;
+	sys = wrpr->system;
+	now = ft_get_time() - sys->start_time;
+
+	pthread_mutex_lock(&sys->output->lock);
+	printf("%lli %i has taken a dongle\n", now, cdr->id);
+	pthread_mutex_unlock(&sys->output->lock);
+}
+
+void	ft_take_dngls(t_cdr_wrpr *wrpr)
+{
+	t_cdr_info	*cdr;
+	
+	cdr = wrpr->cdr;
+
+	if (cdr->dngls[0]->id < cdr->dngls[1]->id)
+	{
+        pthread_mutex_lock(&cdr->dngls[0]->lock);
+		ft_print_took_dngl(wrpr);
+        pthread_mutex_lock(&cdr->dngls[1]->lock);
+		ft_print_took_dngl(wrpr);
+    }
+	else 
+	{
+        pthread_mutex_lock(&cdr->dngls[1]->lock);
+		ft_print_took_dngl(wrpr);
+        pthread_mutex_lock(&cdr->dngls[0]->lock);
+		ft_print_took_dngl(wrpr);
+    }
+	return ;
+}
+
 void	ft_unlock_dngls(t_dngl_info *dngls[2])
 {
 	pthread_mutex_unlock(&dngls[0]->lock);

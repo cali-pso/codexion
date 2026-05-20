@@ -51,9 +51,12 @@ t_system	*ft_init_system(t_system *sys, int argc, char **argv)
 	sys->cdrs_info = ft_generate_coders_info(sys->param, sys->dngls_info);
 	sys->queue = (t_queue *) malloc(sizeof(t_queue));
 	sys->queue->node = NULL;
+	sys->output = (t_output *) malloc(sizeof(t_output));
+	pthread_mutex_init(&sys->output->lock, NULL);
 	pthread_mutex_init(&(sys->queue->lock), NULL);
 	pthread_cond_init(&(sys->queue->cond), NULL);
 	pthread_mutex_init(&(sys->lock), NULL);
+	sys->start_time = ft_get_time();
 	sys->running = 1;
 	return (sys);
 }
@@ -79,10 +82,9 @@ void	*ft_orchestrator(void *arg)
 			break ;
 		}
 		cur_req = ft_get_priority_req(system->param->scheduler, queue);
-		pthread_mutex_unlock(&queue->lock);
 
 		cdr = cur_req->cdr;
-		printf("\npicked up request from %i\n", cdr->id);
+		pthread_mutex_unlock(&queue->lock);
 		is_met = 0;
 		while (!is_met)
 		{
@@ -91,18 +93,15 @@ void	*ft_orchestrator(void *arg)
 			if (ft_check_dngls(cdr->dngls))
 			{
 				ft_own_dngl(cdr->dngls);
-				ft_unlock_dngls(cdr->dngls);
 				cdr->req_met = 1;
 				is_met = 1;
 				pthread_cond_broadcast(&cdr->cond);
+				ft_unlock_dngls(cdr->dngls);
 				pthread_mutex_unlock(&cdr->lock);
 			}
 			else
 			{
 				ft_unlock_dngls(cdr->dngls);
-				pthread_mutex_lock(&queue->lock);
-				ft_push_node(queue, cur_req);
-				pthread_mutex_unlock(&queue->lock);
 				pthread_mutex_unlock(&cdr->lock);
 			}
 		}

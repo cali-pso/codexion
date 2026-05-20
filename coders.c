@@ -56,6 +56,21 @@ pthread_t	*ft_init_coders(t_system *system)
 	return (cdrs);
 }
 
+void	ft_print_dngl_state(t_cdr_wrpr *wrpr, char *state)
+{
+	t_cdr_info	*cdr;
+	t_system	*sys;
+	long long	now;
+
+	cdr = wrpr->cdr;
+	sys = wrpr->system;
+	now = ft_get_time() - sys->start_time;
+
+	pthread_mutex_lock(&sys->output->lock);
+	printf("%lli %i is %s\n", now, cdr->id, state);
+	pthread_mutex_unlock(&sys->output->lock);
+}
+
 void	*ft_coder(void *arg)
 {
 	t_system	*system;
@@ -65,30 +80,28 @@ void	*ft_coder(void *arg)
 	self = ((t_cdr_wrpr *) arg)->cdr;
 	while (self->compiles_done < system->param->nb_compiles_required)
 	{
-		printf("\ncoder %i pushing request -", self->id);
 		pthread_mutex_lock(&system->queue->lock);
-		printf("gotqueue\n");
 		ft_create_request(system->queue, self, system->param->tt_burnout);
 		pthread_cond_broadcast(&system->queue->cond);
 		pthread_mutex_unlock(&system->queue->lock);
-		printf("	sent\n\n");
 
 		pthread_mutex_lock(&self->lock);
 		while (self->req_met == 0 && system->running)
 			pthread_cond_wait(&self->cond, &self->lock);
-		printf("\n%i YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAh\n\n", self->id);
+		ft_take_dngls((t_cdr_wrpr *) arg);
+		ft_print_dngl_state((t_cdr_wrpr *) arg, "compiling");
 		self->req_met = 0;
 		pthread_mutex_unlock(&self->lock);
 		usleep(system->param->tt_compile * 1000);
-		printf("\n%i DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONE\n\n", self->id);
-		ft_lock_dngls(self->dngls);
-		printf("locked\n\n");
+		self->last_compile = ft_get_time();
 		ft_give_dngl(self->dngls);
-		printf("gave\n\n");
 		ft_unlock_dngls(self->dngls);
-		printf("unlocked\n\n");
 
 		self->compiles_done++;
+		ft_print_dngl_state((t_cdr_wrpr *) arg, "debugging");
+		usleep(system->param->tt_debug * 1000);
+		ft_print_dngl_state((t_cdr_wrpr *) arg, "refactoring");
+		usleep(system->param->tt_refactor * 1000);
 	}
 
 	free(arg);

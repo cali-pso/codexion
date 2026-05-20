@@ -43,17 +43,15 @@ t_request	*ft_get_queue_last(t_queue *queue)
 
 void	ft_push_node(t_queue *queue, t_request *node)
 {
-	t_request	*last;
-
 	if (!queue)
 		return ;
 	else if (!queue->node)
 		queue->node = node;
 	else
 	{
-		last = ft_get_queue_last(queue);
-		last->next = node;
-		node->prev = last;
+		queue->node->prev = node;
+		node->next = queue->node;
+		queue->node = node;
 	}
 	return ;
 }
