@@ -4,9 +4,9 @@ SRC = main.c parser.c coders.c queue.c dongles.c
 
 CC = cc
 
-CCARGS = -Wall -Wextra -Werror -fsanitize=thread 
+CCARGS = -Wall -Wextra -Werror -pthread -fsanitize=thread 
 
-ARGS = 5 500 500 500 500 5 250 fifo
+ARGS = 5 500 500 500 500 5 250 edf
 
 all: $(NAME)
 

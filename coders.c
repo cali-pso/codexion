@@ -88,24 +88,63 @@ void	*ft_coder(void *arg)
 		pthread_mutex_lock(&self->lock);
 		while (self->req_met == 0 && system->running)
 			pthread_cond_wait(&self->cond, &self->lock);
-		ft_take_dngls((t_cdr_wrpr *) arg);
-		ft_print_dngl_state((t_cdr_wrpr *) arg, "compiling");
-		self->req_met = 0;
-		pthread_mutex_unlock(&self->lock);
-		usleep(system->param->tt_compile * 1000);
-		self->last_compile = ft_get_time();
-		ft_give_dngl(self->dngls);
-		ft_unlock_dngls(self->dngls);
-
-		self->compiles_done++;
-		ft_print_dngl_state((t_cdr_wrpr *) arg, "debugging");
-		usleep(system->param->tt_debug * 1000);
-		ft_print_dngl_state((t_cdr_wrpr *) arg, "refactoring");
-		usleep(system->param->tt_refactor * 1000);
+		if (!ft_compile((t_cdr_wrpr *) arg))
+			break ;
+		if (!ft_debug((t_cdr_wrpr *) arg))
+			break ;
+		if (!ft_refactor((t_cdr_wrpr *) arg))
+			break ;
 	}
 
 	free(arg);
 	return (NULL);
+}
+
+int	ft_refactor(t_cdr_wrpr *wrpr)
+{
+	t_system	*system;
+
+	system = wrpr->system;
+	ft_print_dngl_state(wrpr, "refactoring");
+	usleep(system->param->tt_refactor * 1000);
+	if (!system->running)
+		return (0);
+	return (1);
+}
+
+int	ft_debug(t_cdr_wrpr *wrpr)
+{
+	t_system	*system;
+
+	system = wrpr->system;
+	ft_print_dngl_state(wrpr, "debugging");
+	usleep(system->param->tt_debug * 1000);
+	if (!system->running)
+		return (0);
+	return (1);
+}
+
+int	ft_compile(t_cdr_wrpr *wrpr)
+{
+	t_system	*system;
+	t_cdr_info	*self;
+
+	system = wrpr->system;
+	self = wrpr->cdr;
+	ft_take_dngls(wrpr);
+	if (!system->running)
+		return (0);
+	ft_print_dngl_state(wrpr, "compiling");
+	self->req_met = 0;
+	pthread_mutex_unlock(&self->lock);
+	usleep(system->param->tt_compile * 1000);
+	self->last_compile = ft_get_time();
+	ft_give_dngl(self->dngls);
+	ft_unlock_dngls(self->dngls);
+	self->compiles_done++;
+	if (!system->running)
+		return (0);
+	return (1);
 }
 
 t_request	*ft_create_request(t_queue *queue, t_cdr_info *cdr, int tt_bo)

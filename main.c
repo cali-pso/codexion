@@ -16,12 +16,14 @@ int	main(int argc, char **argv)
 {
 	t_system	*system;
 	pthread_t	orchestrator;
+	pthread_t	monitor;
 	pthread_t	*coders;
 
 	system = NULL;
 	system = ft_init_system(system, argc, argv);
 	if (!system)
 		return (1);
+	pthread_create(&monitor, NULL, ft_monitor, system);
 	pthread_create(&orchestrator, NULL, ft_orchestrator, system);
 	coders = ft_init_coders(system);
 	ft_wait(&orchestrator, coders, system);
@@ -59,6 +61,30 @@ t_system	*ft_init_system(t_system *sys, int argc, char **argv)
 	sys->start_time = ft_get_time();
 	sys->running = 1;
 	return (sys);
+}
+
+void	*ft_monitor(void *arg)
+{
+	t_system	*sys;
+	int			i;
+	long long	now;
+
+	sys = (t_system *) arg;
+	i = 0;
+	while (sys->running)
+	{
+		while (i < sys->param->nb_cdrs)
+		{
+			now = ft_get_time();
+			if (now >= (sys->cdrs_info[i].last_compile + sys->param->tt_burnout))
+			{
+				sys->running = 0;
+				break;
+			}
+			i++;
+		}
+	}
+	return (NULL);
 }
 
 void	*ft_orchestrator(void *arg)
