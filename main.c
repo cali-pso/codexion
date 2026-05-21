@@ -30,6 +30,32 @@ int	main(int argc, char **argv)
 	return (0);
 }
 
+int ft_get_running_state(t_system *sys)
+{
+	int state;
+
+	pthread_mutex_lock(&sys->lock);
+	state = sys->running;
+	pthread_mutex_unlock(&sys->lock);
+	return (state);
+}
+
+void ft_stop_system(t_system *sys)
+{
+	int i;
+
+	pthread_mutex_lock(&sys->lock);
+	sys->running = 0;
+	pthread_cond_broadcast(&sys->queue->cond);
+	i = 0;
+	while (i < sys->param->nb_cdrs)
+	{
+		pthread_cond_broadcast(&sys->cdrs_info[i].cond);
+		i++;
+	}
+	pthread_mutex_unlock(&sys->lock);
+}
+
 void	ft_wait(pthread_t *orchestr, pthread_t *coders, t_system *system)
 {
 	int	i;
@@ -63,26 +89,61 @@ t_system	*ft_init_system(t_system *sys, int argc, char **argv)
 	return (sys);
 }
 
+int		ft_are_coders_done(t_system *sys)
+{
+	int	cdrs_done;
+	int	i;
+	int	nb_cdrs;
+
+	nb_cdrs = sys->param->nb_cdrs;
+	cdrs_done = 0;
+	i = 0;
+	while (i < nb_cdrs)
+	{
+		pthread_mutex_lock(&sys->cdrs_info[i].lock);
+		if (sys->cdrs_info[i].compiles_done == sys->param->nb_compiles_required)
+			cdrs_done++;
+		pthread_mutex_unlock(&sys->cdrs_info[i].lock);
+		i++;
+	}
+	if (cdrs_done == nb_cdrs)
+		return (1);
+	return (0);
+}
+
 void	*ft_monitor(void *arg)
 {
 	t_system	*sys;
 	int			i;
+	long long	last_compile;
 	long long	now;
 
 	sys = (t_system *) arg;
-	i = 0;
-	while (sys->running)
+	while (ft_get_running_state(sys))
 	{
+		i = 0;
 		while (i < sys->param->nb_cdrs)
 		{
-			now = ft_get_time();
-			if (now >= (sys->cdrs_info[i].last_compile + sys->param->tt_burnout))
+			now = ft_get_time() - sys->start_time;
+			pthread_mutex_lock(&sys->cdrs_info[i].lock);
+			last_compile = sys->cdrs_info[i].last_compile;
+			pthread_mutex_unlock(&sys->cdrs_info[i].lock);
+			if (now >= (last_compile + sys->param->tt_burnout))
 			{
-				sys->running = 0;
-				break;
+				if (!ft_are_coders_done(sys))
+				{
+					pthread_mutex_lock(&sys->output->lock);
+					printf("%lli %i burned out\n", now, sys->cdrs_info[i].id);
+					pthread_mutex_unlock(&sys->output->lock);
+					ft_stop_system(sys);
+				}
+				else
+					ft_stop_system(sys);
+				return (NULL);
 			}
 			i++;
 		}
+		usleep(1000);
 	}
 	return (NULL);
 }
@@ -114,22 +175,19 @@ void	*ft_orchestrator(void *arg)
 		is_met = 0;
 		while (!is_met)
 		{
-			pthread_mutex_lock(&cdr->lock);
 			ft_lock_dngls(cdr->dngls);
 			if (ft_check_dngls(cdr->dngls))
 			{
 				ft_own_dngl(cdr->dngls);
+				pthread_mutex_lock(&cdr->lock);
 				cdr->req_met = 1;
 				is_met = 1;
 				pthread_cond_broadcast(&cdr->cond);
-				ft_unlock_dngls(cdr->dngls);
 				pthread_mutex_unlock(&cdr->lock);
+				ft_unlock_dngls(cdr->dngls);
 			}
 			else
-			{
 				ft_unlock_dngls(cdr->dngls);
-				pthread_mutex_unlock(&cdr->lock);
-			}
 		}
 	}
 	return (NULL);

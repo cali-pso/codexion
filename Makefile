@@ -6,7 +6,7 @@ CC = cc
 
 CCARGS = -Wall -Wextra -Werror -pthread -fsanitize=thread 
 
-ARGS = 5 500 500 500 500 5 250 edf
+ARGS = 5 1000 199 199 199 10 25 fifo
 
 all: $(NAME)
 

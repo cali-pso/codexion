@@ -119,5 +119,7 @@ int				ft_check_dngls(t_dngl_info *dngls[2]);
 void			ft_print_dngl_state(t_cdr_wrpr *wrpr, char *state);
 void			ft_print_took_dngl(t_cdr_wrpr *wrpr);
 long long		ft_get_time();
+int 			ft_get_running_state(t_system *sys);
+void 			ft_stop_system(t_system *sys);
 
 #endif

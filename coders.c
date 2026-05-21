@@ -78,7 +78,7 @@ void	*ft_coder(void *arg)
 
 	system = ((t_cdr_wrpr *) arg)->system;
 	self = ((t_cdr_wrpr *) arg)->cdr;
-	while (self->compiles_done < system->param->nb_compiles_required)
+	while (self->compiles_done < system->param->nb_compiles_required && ft_get_running_state(system))
 	{
 		pthread_mutex_lock(&system->queue->lock);
 		ft_create_request(system->queue, self, system->param->tt_burnout);
@@ -86,8 +86,9 @@ void	*ft_coder(void *arg)
 		pthread_mutex_unlock(&system->queue->lock);
 
 		pthread_mutex_lock(&self->lock);
-		while (self->req_met == 0 && system->running)
+		while (self->req_met == 0 && ft_get_running_state(system))
 			pthread_cond_wait(&self->cond, &self->lock);
+		pthread_mutex_unlock(&self->lock);
 		if (!ft_compile((t_cdr_wrpr *) arg))
 			break ;
 		if (!ft_debug((t_cdr_wrpr *) arg))
@@ -107,7 +108,7 @@ int	ft_refactor(t_cdr_wrpr *wrpr)
 	system = wrpr->system;
 	ft_print_dngl_state(wrpr, "refactoring");
 	usleep(system->param->tt_refactor * 1000);
-	if (!system->running)
+	if (!ft_get_running_state(system))
 		return (0);
 	return (1);
 }
@@ -115,11 +116,15 @@ int	ft_refactor(t_cdr_wrpr *wrpr)
 int	ft_debug(t_cdr_wrpr *wrpr)
 {
 	t_system	*system;
+	int			tt_debug;
 
 	system = wrpr->system;
 	ft_print_dngl_state(wrpr, "debugging");
-	usleep(system->param->tt_debug * 1000);
-	if (!system->running)
+	pthread_mutex_lock(&system->lock);
+	tt_debug = system->param->tt_debug;
+	pthread_mutex_unlock(&system->lock);
+	usleep(tt_debug * 1000);
+	if (!ft_get_running_state(system))
 		return (0);
 	return (1);
 }
@@ -132,17 +137,18 @@ int	ft_compile(t_cdr_wrpr *wrpr)
 	system = wrpr->system;
 	self = wrpr->cdr;
 	ft_take_dngls(wrpr);
-	if (!system->running)
+	if (!ft_get_running_state(system))
 		return (0);
 	ft_print_dngl_state(wrpr, "compiling");
 	self->req_met = 0;
-	pthread_mutex_unlock(&self->lock);
 	usleep(system->param->tt_compile * 1000);
-	self->last_compile = ft_get_time();
+	pthread_mutex_lock(&self->lock);
+	self->compiles_done++;
+	self->last_compile = ft_get_time() - system->start_time;
+	pthread_mutex_unlock(&self->lock);
 	ft_give_dngl(self->dngls);
 	ft_unlock_dngls(self->dngls);
-	self->compiles_done++;
-	if (!system->running)
+	if (!ft_get_running_state(system))
 		return (0);
 	return (1);
 }
