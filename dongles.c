@@ -25,7 +25,7 @@ t_dngl_info	*ft_generate_dngls_info(t_parameters *param)
 	{
 		dngls[i].id = i;
 		dngls[i].held = 0;
-		dngls[i].free_at = ft_get_time() + param->dngl_cooldown;
+		dngls[i].free_at = 0;
 		dngls[i].cooldown = param->dngl_cooldown;
 		pthread_mutex_init(&dngls[i].lock, NULL);
 		i++;

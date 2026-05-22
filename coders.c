@@ -28,8 +28,11 @@ t_cdr_info	*ft_generate_coders_info(t_parameters *param, t_dngl_info *dngls)
 		cdr->id = i + 1;
 		cdr->dngls[0] = &dngls[i];
 		cdr->dngls[1] = &dngls[(i + nb_cdrs + 1) % nb_cdrs];
+		cdr->last_compile = 0;
 		cdr->compiles_done = 0;
+		cdr->req_met = 0;
 		pthread_cond_init(&(cdr->cond), NULL);
+		pthread_mutex_init(&(cdr->lock), NULL);
 		i++;
 	}
 	return (cdrs_info);
@@ -140,11 +143,13 @@ int	ft_compile(t_cdr_wrpr *wrpr)
 	if (!ft_get_running_state(system))
 		return (0);
 	ft_print_dngl_state(wrpr, "compiling");
+	pthread_mutex_lock(&self->lock);
+	self->last_compile = ft_get_time() - system->start_time;
 	self->req_met = 0;
+	pthread_mutex_unlock(&self->lock);
 	usleep(system->param->tt_compile * 1000);
 	pthread_mutex_lock(&self->lock);
 	self->compiles_done++;
-	self->last_compile = ft_get_time() - system->start_time;
 	pthread_mutex_unlock(&self->lock);
 	ft_give_dngl(self->dngls);
 	ft_unlock_dngls(self->dngls);
@@ -160,6 +165,8 @@ t_request	*ft_create_request(t_queue *queue, t_cdr_info *cdr, int tt_bo)
 	to_push = (t_request *) malloc(sizeof(t_request));
 	to_push->cdr = cdr;
 	to_push->deadline = cdr->last_compile + tt_bo;
+	to_push->next = NULL;
+	to_push->prev = NULL;
 	ft_push_node(queue, to_push);
 	return to_push;
 }

@@ -4,14 +4,14 @@ SRC = main.c parser.c coders.c queue.c dongles.c
 
 CC = cc
 
-CCARGS = -Wall -Wextra -Werror -pthread -fsanitize=thread 
+CCARGS = -Wall -Wextra -Werror -pthread
 
-ARGS = 5 1000 199 199 199 10 25 fifo
+ARGS = 5 403 100 100 100 10 50 edf
 
 all: $(NAME)
 
 $(NAME): 
-	TSAN_OPTIONS=second_deadlock_stack=1; $(CC) $(CCARGS) $(SRC) -o $(NAME)
+	$(CC) $(CCARGS) $(SRC) -o $(NAME)
 
 run: clean $(NAME)
 	./$(NAME) $(ARGS)

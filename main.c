@@ -15,19 +15,38 @@
 int	main(int argc, char **argv)
 {
 	t_system	*system;
-	pthread_t	orchestrator;
-	pthread_t	monitor;
-	pthread_t	*coders;
 
 	system = NULL;
 	system = ft_init_system(system, argc, argv);
 	if (!system)
 		return (1);
-	pthread_create(&monitor, NULL, ft_monitor, system);
-	pthread_create(&orchestrator, NULL, ft_orchestrator, system);
-	coders = ft_init_coders(system);
-	ft_wait(&orchestrator, coders, system);
+	ft_wait(system);
+	ft_free(system);
 	return (0);
+}
+
+void	ft_free(t_system *system)
+{
+	int	i;
+
+	i = 0;
+	while (i < system->param->nb_cdrs)
+	{
+		pthread_mutex_destroy(&system->cdrs_info[i].lock);
+		pthread_cond_destroy(&system->cdrs_info[i].cond);
+		pthread_mutex_destroy(&system->dngls_info[i].lock);
+		i++;
+	}
+	free(system->cdrs_info);
+	free(system->dngls_info);
+	pthread_mutex_destroy(&system->queue->lock);
+	pthread_cond_destroy(&system->queue->cond);
+	free(system->queue);
+	free(system->param);
+	pthread_mutex_destroy(&system->output->lock);
+	free(system->output);
+	pthread_mutex_destroy(&system->lock);
+	free(system);
 }
 
 int ft_get_running_state(t_system *sys)
@@ -46,6 +65,7 @@ void ft_stop_system(t_system *sys)
 
 	pthread_mutex_lock(&sys->lock);
 	sys->running = 0;
+	pthread_mutex_unlock(&sys->lock);
 	pthread_cond_broadcast(&sys->queue->cond);
 	i = 0;
 	while (i < sys->param->nb_cdrs)
@@ -53,20 +73,20 @@ void ft_stop_system(t_system *sys)
 		pthread_cond_broadcast(&sys->cdrs_info[i].cond);
 		i++;
 	}
-	pthread_mutex_unlock(&sys->lock);
 }
 
-void	ft_wait(pthread_t *orchestr, pthread_t *coders, t_system *system)
+void	ft_wait(t_system *system)
 {
 	int	i;
 
 	i = 0;
 	while (i < system->param->nb_cdrs)
 	{
-		pthread_join(coders[i], NULL);
+		pthread_join(system->my_threads->coders[i], NULL);
 		i++;
 	}
-	pthread_join(*orchestr, NULL);
+	pthread_join(system->my_threads->orchestrator, NULL);
+	pthread_join(system->my_threads->monitor, NULL);
 }
 
 t_system	*ft_init_system(t_system *sys, int argc, char **argv)
@@ -86,7 +106,19 @@ t_system	*ft_init_system(t_system *sys, int argc, char **argv)
 	pthread_mutex_init(&(sys->lock), NULL);
 	sys->start_time = ft_get_time();
 	sys->running = 1;
+	sys->my_threads = ft_init_threads(sys);
 	return (sys);
+}
+
+t_my_threads	*ft_init_threads(t_system *system)
+{
+	t_my_threads	*my_threads;
+
+	my_threads = (t_my_threads *) malloc(sizeof(t_my_threads));
+	pthread_create(&my_threads->monitor, NULL, ft_monitor, system);
+	pthread_create(&my_threads->orchestrator, NULL, ft_orchestrator, system);
+	my_threads->coders = ft_init_coders(system);
+	return my_threads;
 }
 
 int		ft_are_coders_done(t_system *sys)
@@ -119,6 +151,7 @@ void	*ft_monitor(void *arg)
 	long long	now;
 
 	sys = (t_system *) arg;
+	now = 0;
 	while (ft_get_running_state(sys))
 	{
 		i = 0;
@@ -158,12 +191,12 @@ void	*ft_orchestrator(void *arg)
 
 	system = (t_system *) arg;
 	queue = system->queue;
-	while (system->running)
+	while (ft_get_running_state(system))
 	{
 		pthread_mutex_lock(&queue->lock);
-		while (queue->node == NULL && system->running)
+		while (queue->node == NULL && ft_get_running_state(system))
 			pthread_cond_wait(&queue->cond, &queue->lock);
-		if (!system->running)
+		if (!ft_get_running_state(system))
 		{
 			pthread_mutex_unlock(&queue->lock);
 			break ;
@@ -189,6 +222,7 @@ void	*ft_orchestrator(void *arg)
 			else
 				ft_unlock_dngls(cdr->dngls);
 		}
+		free(cur_req);
 	}
 	return (NULL);
 }

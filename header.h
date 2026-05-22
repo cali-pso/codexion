@@ -72,6 +72,13 @@ typedef struct s_output
 	pthread_mutex_t	lock;
 }					t_output;
 
+typedef struct s_my_threads
+{
+	pthread_t		orchestrator;
+	pthread_t		monitor;
+	pthread_t		*coders;
+}					t_my_threads;
+
 typedef struct s_system
 {
 	t_parameters	*param;
@@ -80,6 +87,7 @@ typedef struct s_system
 	t_queue			*queue;
 	int				running;
 	t_output		*output;
+	t_my_threads	*my_threads;
 	long long		start_time;
 	pthread_mutex_t	lock;
 }					t_system;
@@ -103,11 +111,12 @@ int				ft_check_str(char **argv);
 void			*ft_orchestrator(void *arg);
 void			*ft_monitor(void *arg);
 pthread_t		*ft_init_coders(t_system *system);
+t_my_threads	*ft_init_threads(t_system *system);
 void			*ft_coder(void *arg);
 int				ft_refactor(t_cdr_wrpr *wrpr);
 int				ft_debug(t_cdr_wrpr *wrpr);
 int				ft_compile(t_cdr_wrpr *wrpr);
-void			ft_wait(pthread_t *orchestr, pthread_t *coders, t_system *system);
+void			ft_wait(t_system *system);
 int				ft_queue_len(t_queue *queue);
 void			ft_take_dngl(t_dngl_info *dngls[2]);
 void			ft_give_dngl(t_dngl_info *dngls[2]);
@@ -121,5 +130,6 @@ void			ft_print_took_dngl(t_cdr_wrpr *wrpr);
 long long		ft_get_time();
 int 			ft_get_running_state(t_system *sys);
 void 			ft_stop_system(t_system *sys);
+void			ft_free(t_system *system);
 
 #endif
