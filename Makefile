@@ -1,6 +1,6 @@
 NAME = codexion
 
-SRC = main.c parser.c coders.c queue.c dongles.c
+SRC = main.c parser.c coders.c queue.c dongles.c orchestrator.c monitor.c system.c utils.c coders_utils.c dongles_utils.c
 
 CC = cc
 

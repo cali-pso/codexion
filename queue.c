@@ -76,7 +76,7 @@ void	ft_pop_node(t_queue *queue, t_request *node)
 
 int	ft_queue_len(t_queue *queue)
 {
-	int	i;
+	int			i;
 	t_request	*cur;
 
 	i = 0;

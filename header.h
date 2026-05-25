@@ -62,6 +62,7 @@ typedef struct s_request
 
 typedef struct s_queue
 {
+	t_request		*cur_req;
 	t_request		*node;
 	pthread_mutex_t	lock;
 	pthread_cond_t	cond;
@@ -100,16 +101,21 @@ typedef struct s_cdr_wrpr
 
 t_system		*ft_init_system(t_system *system, int argc, char **argv);
 t_parameters	*ft_parse(int argc, char **argv);
-t_cdr_info		*ft_generate_coders_info(t_parameters *parameters, t_dngl_info *dngls);
-t_dngl_info		*ft_generate_dngls_info(t_parameters *param);
+t_cdr_info		*ft_generate_cdrs_info(t_parameters *prm, t_dngl_info *dngls);
+t_dngl_info		*ft_generate_dngls_info(t_parameters *prm);
 t_request		*ft_create_request(t_queue *queue, t_cdr_info *cdr, int tt_bo);
 t_request		*ft_get_priority_req(char *scheduler, t_queue *queue);
+int				ft_are_coders_done(t_system *sys);
+int				ft_is_coder_done(t_cdr_info *cdr, t_system *sys);
 void			ft_pop_node(t_queue *queue, t_request *node);
 void			ft_push_node(t_queue *queue, t_request *node);
 int				ft_check_numbers(char **argv);
 int				ft_check_str(char **argv);
 void			*ft_orchestrator(void *arg);
+int				ft_satisfy_coder_request(t_cdr_info *cdr);
+t_cdr_info		*ft_get_priority_coder(t_system *system);
 void			*ft_monitor(void *arg);
+int				ft_check_for_burnout(int i, t_system *sys);
 pthread_t		*ft_init_coders(t_system *system);
 t_my_threads	*ft_init_threads(t_system *system);
 void			*ft_coder(void *arg);
@@ -127,9 +133,9 @@ void			ft_unlock_dngls(t_dngl_info *dngls[2]);
 int				ft_check_dngls(t_dngl_info *dngls[2]);
 void			ft_print_dngl_state(t_cdr_wrpr *wrpr, char *state);
 void			ft_print_took_dngl(t_cdr_wrpr *wrpr);
-long long		ft_get_time();
-int 			ft_get_running_state(t_system *sys);
-void 			ft_stop_system(t_system *sys);
+long long		ft_get_time(void);
+int				ft_get_running_state(t_system *sys);
+void			ft_stop_system(t_system *sys);
 void			ft_free(t_system *system);
 
 #endif
