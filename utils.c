@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/25 17:00:26 by rapoggi           #+#    #+#             */
+/*   Updated: 2026/05/25 17:03:02 by rapoggi          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "header.h"
 
 void	ft_free(t_system *system)
@@ -16,6 +28,7 @@ void	ft_free(t_system *system)
 	free(system->dngls_info);
 	pthread_mutex_destroy(&system->queue->lock);
 	pthread_cond_destroy(&system->queue->cond);
+	ft_free_queue(system->queue);
 	free(system->queue);
 	free(system->param);
 	free(system->my_threads->coders);
@@ -24,6 +37,21 @@ void	ft_free(t_system *system)
 	free(system->output);
 	pthread_mutex_destroy(&system->lock);
 	free(system);
+}
+
+void	ft_free_queue(t_queue *queue)
+{
+	t_request	*cur;
+	t_request	*prev;
+
+	cur = queue->node;
+	while (cur)
+	{
+		prev = cur;
+		cur = cur->next;
+		free(prev);
+	}
+	return ;
 }
 
 void	ft_wait(t_system *system)

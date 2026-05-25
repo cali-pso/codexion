@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/20 00:42:21 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/25 16:57:19 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,5 +137,6 @@ long long		ft_get_time(void);
 int				ft_get_running_state(t_system *sys);
 void			ft_stop_system(t_system *sys);
 void			ft_free(t_system *system);
+void			ft_free_queue(t_queue *queue);
 
 #endif
