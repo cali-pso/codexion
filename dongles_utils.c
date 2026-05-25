@@ -7,18 +7,24 @@ void	ft_take_dngls(t_cdr_wrpr *wrpr)
 	cdr = wrpr->cdr;
 	if (cdr->dngls[0]->id < cdr->dngls[1]->id)
 	{
-		pthread_mutex_lock(&cdr->dngls[0]->lock);
-		ft_print_took_dngl(wrpr);
-		pthread_mutex_lock(&cdr->dngls[1]->lock);
-		ft_print_took_dngl(wrpr);
+		if (ft_get_running_state(wrpr->system))
+			pthread_mutex_lock(&cdr->dngls[0]->lock);
+		if (ft_get_running_state(wrpr->system))
+			ft_print_took_dngl(wrpr);
+		if (ft_get_running_state(wrpr->system))
+			pthread_mutex_lock(&cdr->dngls[1]->lock);
+		if (ft_get_running_state(wrpr->system))
+			ft_print_took_dngl(wrpr);
+		return ;
 	}
-	else
-	{
+	if (ft_get_running_state(wrpr->system))
 		pthread_mutex_lock(&cdr->dngls[1]->lock);
+	if (ft_get_running_state(wrpr->system))
 		ft_print_took_dngl(wrpr);
+	if (ft_get_running_state(wrpr->system))
 		pthread_mutex_lock(&cdr->dngls[0]->lock);
+	if (ft_get_running_state(wrpr->system))
 		ft_print_took_dngl(wrpr);
-	}
 	return ;
 }
 

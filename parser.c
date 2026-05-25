@@ -44,7 +44,7 @@ int	ft_check_numbers(char **argv)
 		len = strlen(argv[i]);
 		while (y < len)
 		{
-			if (argv[i][y] < '0' || argv[i][y] > '9')
+			if (!argv[i][y] || (argv[i][y] < '0' || argv[i][y] > '9'))
 				return (0);
 			y++;
 		}

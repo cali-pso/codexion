@@ -25,6 +25,9 @@ t_request	*ft_get_priority_req(char *scheduler, t_queue *queue)
 			prior = cur;
 		else if (!prior || cur->deadline < prior->deadline)
 			prior = cur;
+		else if (cur->deadline == prior->deadline)
+			if (cur->cdr->id < prior->cdr->id)
+				prior = cur;
 		cur = cur->next;
 	}
 	ft_pop_node(queue, prior);

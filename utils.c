@@ -18,6 +18,8 @@ void	ft_free(t_system *system)
 	pthread_cond_destroy(&system->queue->cond);
 	free(system->queue);
 	free(system->param);
+	free(system->my_threads->coders);
+	free(system->my_threads);
 	pthread_mutex_destroy(&system->output->lock);
 	free(system->output);
 	pthread_mutex_destroy(&system->lock);

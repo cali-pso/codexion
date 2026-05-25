@@ -6,6 +6,8 @@ t_system	*ft_init_system(t_system *sys, int argc, char **argv)
 	if (!sys)
 		return (NULL);
 	sys->param = ft_parse(argc, argv);
+	if (!sys->param)
+		return (NULL);
 	sys->dngls_info = ft_generate_dngls_info(sys->param);
 	sys->cdrs_info = ft_generate_cdrs_info(sys->param, sys->dngls_info);
 	sys->queue = (t_queue *) malloc(sizeof(t_queue));

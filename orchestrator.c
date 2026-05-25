@@ -13,13 +13,16 @@ void	*ft_orchestrator(void *arg)
 		if (!cdr)
 			break ;
 		is_met = 0;
-		while (!is_met)
+		while (!is_met && ft_get_running_state(system))
 		{
 			ft_lock_dngls(cdr->dngls);
 			if (ft_check_dngls(cdr->dngls))
 				is_met = ft_satisfy_coder_request(cdr);
 			else
+			{
 				ft_unlock_dngls(cdr->dngls);
+				usleep(500);
+			}
 		}
 		free(system->queue->cur_req);
 	}
