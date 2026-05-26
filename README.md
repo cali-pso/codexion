@@ -35,12 +35,12 @@ To execute with custom parameters, run:
 ```bash
     make clean
 ```
-> removes compiled object files.  
+> removes executable.  
  
 ```bash
     make fclean
 ```
-> removes compiled objects and the executable file.
+> force removes executable.
 
 ## Blocking cases handled
 

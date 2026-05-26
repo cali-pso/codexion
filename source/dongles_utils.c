@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:44 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 12:37:23 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 13:39:49 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ t_dngl_info	*ft_generate_dngls_info(t_parameters *prm)
 		dngls[i].id = i;
 		dngls[i].held = 0;
 		dngls[i].cooldown = prm->dngl_cooldown;
-		dngls[i].free_at = ft_get_time() + dngls[i].cooldown;
+		dngls[i].free_at = 0;
 		pthread_mutex_init(&dngls[i].lock, NULL);
 		i++;
 	}
