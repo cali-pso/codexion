@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:38 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/25 17:00:39 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 18:58:56 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,8 @@ t_system	*ft_init_system(t_system *sys, int argc, char **argv)
 		return (NULL);
 	sys->dngls_info = ft_generate_dngls_info(sys->param);
 	sys->cdrs_info = ft_generate_cdrs_info(sys->param, sys->dngls_info);
-	sys->queue = (t_queue *) malloc(sizeof(t_queue));
-	sys->queue->node = NULL;
 	sys->output = (t_output *) malloc(sizeof(t_output));
 	pthread_mutex_init(&sys->output->lock, NULL);
-	pthread_mutex_init(&(sys->queue->lock), NULL);
-	pthread_cond_init(&(sys->queue->cond), NULL);
 	pthread_mutex_init(&(sys->lock), NULL);
 	sys->start_time = ft_get_time();
 	sys->running = 1;
@@ -41,7 +37,6 @@ t_my_threads	*ft_init_threads(t_system *system)
 
 	my_threads = (t_my_threads *) malloc(sizeof(t_my_threads));
 	pthread_create(&my_threads->monitor, NULL, ft_monitor, system);
-	pthread_create(&my_threads->orchestrator, NULL, ft_orchestrator, system);
 	my_threads->coders = ft_init_coders(system);
 	return (my_threads);
 }
@@ -63,7 +58,6 @@ void	ft_stop_system(t_system *sys)
 	pthread_mutex_lock(&sys->lock);
 	sys->running = 0;
 	pthread_mutex_unlock(&sys->lock);
-	pthread_cond_broadcast(&sys->queue->cond);
 	i = 0;
 	while (i < sys->param->nb_cdrs)
 	{

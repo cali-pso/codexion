@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 16:28:34 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 18:51:31 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,6 @@ typedef struct s_output
 
 typedef struct s_my_threads
 {
-	pthread_t		orchestrator;
 	pthread_t		monitor;
 	pthread_t		*coders;
 }					t_my_threads;
@@ -88,7 +87,6 @@ typedef struct s_system
 	t_parameters	*param;
 	t_cdr_info		*cdrs_info;
 	t_dngl_info		*dngls_info;
-	t_queue			*queue;
 	int				running;
 	t_output		*output;
 	t_my_threads	*my_threads;
@@ -109,10 +107,8 @@ typedef struct s_dngl_wrpr
 }				t_dngl_wrpr;
 
 void	ft_wait_for_dongles(t_cdr_info *cdr, t_system *sys);
-t_dngl_info	*ft_get_right_dongle(t_dngl_info *dngls[2]);
-t_dngl_info	*ft_get_left_dongle(t_dngl_info *dngls[2]);
 int	ft_got_dongle(t_dngl_info *dngl, t_cdr_info *cdr);
-t_dngl_info	*ft_get_sorted_dongles(t_dngl_info *dngls[2]);
+t_dngl_info	**ft_get_sorted_dongles(t_dngl_info *dngls[2], t_dngl_info **sort);
 
 void	*ft_dongle(void *arg);
 
@@ -142,15 +138,11 @@ int				ft_compile(t_cdr_wrpr *wrpr);
 void			ft_wait(t_system *system);
 void    		*ft_single_coder_routine(t_cdr_wrpr *wrpr);
 int				ft_queue_len(t_queue *queue);
-void			ft_take_dngl(t_dngl_info *dngls[2]);
-void			ft_give_dngl(t_dngl_info *dngls[2]);
-void			ft_take_dngls(t_cdr_wrpr *wrpr);
-void			ft_own_dngl(t_dngl_info *dngls[2]);
-void			ft_lock_dngls(t_dngl_info *dngls[2]);
-void			ft_unlock_dngls(t_dngl_info *dngls[2]);
-int				ft_check_dngls(t_dngl_info *dngls[2]);
 void			ft_print_dngl_state(t_cdr_wrpr *wrpr, char *state);
 void			ft_print_took_dngl(t_cdr_wrpr *wrpr);
+void			ft_take_dngl(t_dngl_info *dngl, t_cdr_info *cdr, t_system *sys);
+void			ft_give_dongle(t_dngl_info *dngl);
+void			ft_give_back_dongles(t_cdr_info *cdr);
 long long		ft_get_time(void);
 int				ft_get_running_state(t_system *sys);
 void			ft_stop_system(t_system *sys);

@@ -5,7 +5,6 @@ SRC = source/main.c \
 	  source/coders.c \
 	  source/queue.c \
 	  source/dongles.c \
-	  source/orchestrator.c \
 	  source/monitor.c \
 	  source/system.c \
 	  source/utils.c \

@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:33:55 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 16:14:51 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 19:00:06 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@ void	*ft_coder(void *arg)
         return (ft_single_coder_routine((t_cdr_wrpr *) arg));
 	while (ft_is_coder_done(self, system))
 	{
-		ft_create_request(system->queue, self, system->param->tt_burnout);
 		ft_wait_for_dongles(self, system);
 		if (!ft_compile((t_cdr_wrpr *) arg))
 			break ;
+		ft_give_back_dongles(self);
 		if (!ft_debug((t_cdr_wrpr *) arg))
 			break ;
 		if (!ft_refactor((t_cdr_wrpr *) arg))
@@ -36,41 +36,78 @@ void	*ft_coder(void *arg)
 	return (NULL);
 }
 
-void	ft_wait_for_dongles(t_cdr_info *cdr, t_system *sys)
+void	ft_give_back_dongles(t_cdr_info *cdr)
 {
-	t_dngl_info	*sorted_dngls;
+	t_dngl_info **sort_dngls;
 
-	sorted_dngls = ft_get_sorted_dongles(cdr->dngls);
-
-	ft_create_request(sorted_dngls[0].queue, cdr, sys->param->tt_burnout);
-	pthread_mutex_lock(&cdr->lock);
-	while (!ft_got_dongle(&sorted_dngls[0], cdr) && ft_get_running_state(sys))
-		pthread_cond_wait(&cdr->cond, &cdr->lock);
-	ft_create_request(sorted_dngls[1].queue, cdr, sys->param->tt_burnout);
-	while (!ft_got_dongle(&sorted_dngls[1], cdr) && ft_get_running_state(sys))
-		pthread_cond_wait(&cdr->cond, &cdr->lock);
+	sort_dngls = NULL;
+	sort_dngls = ft_get_sorted_dongles(cdr->dngls, sort_dngls);
+	ft_give_dongle(sort_dngls[0]);
+	ft_give_dongle(sort_dngls[1]);
 }
 
-t_dngl_info	*ft_get_sorted_dongles(t_dngl_info *dngls[2])
+void	ft_give_dongle(t_dngl_info *dngl)
 {
-	t_dngl_info	*right_dngl;
-	t_dngl_info	*left_dngl;
+	pthread_mutex_lock(&dngl->lock);
+	dngl->held = 0;
+	dngl->free_at = ft_get_time() + dngl->cooldown;
+	pthread_cond_broadcast(&dngl->cond);
+	pthread_mutex_unlock(&dngl->lock);
+}
+
+void	ft_wait_for_dongles(t_cdr_info *cdr, t_system *system)
+{
+	t_dngl_info	**sort_dngls;
+
+	sort_dngls = NULL;
+	sort_dngls = ft_get_sorted_dongles(cdr->dngls, sort_dngls);
+	ft_take_dngl(sort_dngls[0], cdr, system);
+	ft_take_dngl(sort_dngls[1], cdr, system);
+}
+
+void	ft_take_dngl(t_dngl_info *dngl, t_cdr_info *cdr, t_system *sys)
+{
+	t_request	*my_req;
+	t_request	*prio_req;
+	long long	now;
+
+	my_req = ft_create_request(dngl->queue, cdr, sys->param->tt_burnout);
+	pthread_mutex_lock(&dngl->lock);
+	while (ft_get_running_state(sys))
+	{
+		prio_req = ft_get_priority_req(sys->param->scheduler, dngl->queue);
+		now = ft_get_time();
+		if (&prio_req->cdr == &cdr && dngl->held == 0 && dngl->free_at <= now)
+		{
+			dngl->held = 1;
+			ft_pop_node(dngl->queue, my_req);
+			free(my_req);
+			break ;
+		}
+		pthread_cond_wait(&dngl->cond, &dngl->lock);
+	}
+	pthread_mutex_unlock(&dngl->lock);
+}
+
+t_dngl_info	**ft_get_sorted_dongles(t_dngl_info *dngls[2], t_dngl_info **sort)
+{
+	sort = (t_dngl_info **) malloc(sizeof(t_dngl_info *) * 2);
 
 	pthread_mutex_lock(&dngls[0]->lock);
 	pthread_mutex_lock(&dngls[1]->lock);
 	if (dngls[0]->id > dngls[1]->id)
 	{
-		right_dngl = dngls[0];
-		left_dngl = dngls[1];
+		sort[0] = dngls[0];
+		sort[1] = dngls[1];
 	}
 	else
 	{
-		right_dngl = dngls[1];
-		left_dngl = dngls[0];
+		sort[0] = dngls[1];
+		sort[1] = dngls[0];
 	}
 	pthread_mutex_unlock(&dngls[0]->lock);
 	pthread_mutex_unlock(&dngls[1]->lock);
-	return (left_dngl);
+	return (sort);
 }
 
 int	ft_got_dongle(t_dngl_info *dngl, t_cdr_info *cdr)

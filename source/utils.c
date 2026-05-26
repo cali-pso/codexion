@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:26 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/25 17:03:02 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 18:59:30 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,12 @@ void	ft_free(t_system *system)
 		pthread_mutex_destroy(&system->cdrs_info[i].lock);
 		pthread_cond_destroy(&system->cdrs_info[i].cond);
 		pthread_mutex_destroy(&system->dngls_info[i].lock);
+		pthread_mutex_destroy(&system->dngls_info[i].queue->lock);
+		free(system->dngls_info[i].queue);
 		i++;
 	}
 	free(system->cdrs_info);
 	free(system->dngls_info);
-	pthread_mutex_destroy(&system->queue->lock);
-	pthread_cond_destroy(&system->queue->cond);
-	ft_free_queue(system->queue);
-	free(system->queue);
 	free(system->param);
 	free(system->my_threads->coders);
 	free(system->my_threads);
@@ -64,7 +62,6 @@ void	ft_wait(t_system *system)
 		pthread_join(system->my_threads->coders[i], NULL);
 		i++;
 	}
-	pthread_join(system->my_threads->orchestrator, NULL);
 	pthread_join(system->my_threads->monitor, NULL);
 }
 
