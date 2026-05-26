@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:33:55 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/20 01:43:57 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 12:27:50 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ void	*ft_coder(void *arg)
 
 	system = ((t_cdr_wrpr *) arg)->system;
 	self = ((t_cdr_wrpr *) arg)->cdr;
+	if (system->param->nb_cdrs == 1)
+        return (ft_single_coder_routine((t_cdr_wrpr *) arg));
 	while (ft_is_coder_done(self, system))
 	{
 		ft_create_request(system->queue, self, system->param->tt_burnout);

@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/25 16:57:19 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 12:45:07 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct s_dngl_info
 {
 	int				id;
 	int				held;
-	int				free_at;
+	long long		free_at;
 	int				cooldown;
 	pthread_mutex_t	lock;
 }					t_dngl_info;
@@ -123,6 +123,7 @@ int				ft_refactor(t_cdr_wrpr *wrpr);
 int				ft_debug(t_cdr_wrpr *wrpr);
 int				ft_compile(t_cdr_wrpr *wrpr);
 void			ft_wait(t_system *system);
+void    		*ft_single_coder_routine(t_cdr_wrpr *wrpr);
 int				ft_queue_len(t_queue *queue);
 void			ft_take_dngl(t_dngl_info *dngls[2]);
 void			ft_give_dngl(t_dngl_info *dngls[2]);

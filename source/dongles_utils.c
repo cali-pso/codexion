@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:44 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/25 17:00:49 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 12:37:23 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ t_dngl_info	*ft_generate_dngls_info(t_parameters *prm)
 	{
 		dngls[i].id = i;
 		dngls[i].held = 0;
-		dngls[i].free_at = 0;
 		dngls[i].cooldown = prm->dngl_cooldown;
+		dngls[i].free_at = ft_get_time() + dngls[i].cooldown;
 		pthread_mutex_init(&dngls[i].lock, NULL);
 		i++;
 	}
@@ -85,6 +85,7 @@ void	ft_print_dngl_state(t_cdr_wrpr *wrpr, char *state)
 	sys = wrpr->system;
 	now = ft_get_time() - sys->start_time;
 	pthread_mutex_lock(&sys->output->lock);
-	printf("%lli %i is %s\n", now, cdr->id, state);
+	if (ft_get_running_state(sys))
+		printf("%lli %i is %s\n", now, cdr->id, state);
 	pthread_mutex_unlock(&sys->output->lock);
 }

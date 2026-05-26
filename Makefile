@@ -1,6 +1,16 @@
 NAME = codexion
 
-SRC = main.c parser.c coders.c queue.c dongles.c orchestrator.c monitor.c system.c utils.c coders_utils.c dongles_utils.c
+SRC = source/main.c \
+	  source/parser.c \
+	  source/coders.c \
+	  source/queue.c \
+	  source/dongles.c \
+	  source/orchestrator.c \
+	  source/monitor.c \
+	  source/system.c \
+	  source/utils.c \
+	  source/coders_utils.c \
+	  source/dongles_utils.c
 
 CC = cc
 
@@ -18,3 +28,8 @@ run: clean $(NAME)
 
 clean:
 	- rm codexion
+
+fclean:
+	- rm -f codexion
+
+re: fclean all

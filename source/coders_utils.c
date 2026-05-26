@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:01:03 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/25 17:01:04 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 12:27:21 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,4 +65,20 @@ int	ft_is_coder_done(t_cdr_info *cdr, t_system *sys)
 		if (ft_get_running_state(sys))
 			return (1);
 	return (0);
+}
+
+void    *ft_single_coder_routine(t_cdr_wrpr *wrpr)
+{
+    t_system    *sys;
+    t_cdr_info  *cdr;
+
+    sys = wrpr->system;
+    cdr = wrpr->cdr;
+    pthread_mutex_lock(&cdr->dngls[0]->lock);
+    ft_print_took_dngl(wrpr);
+    while (ft_get_running_state(sys))
+        usleep(1000);
+    pthread_mutex_unlock(&cdr->dngls[0]->lock);
+    free(wrpr);
+    return (NULL);
 }
