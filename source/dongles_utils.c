@@ -6,39 +6,11 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:44 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 13:39:49 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 16:37:46 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
-
-void	ft_take_dngls(t_cdr_wrpr *wrpr)
-{
-	t_cdr_info	*cdr;
-
-	cdr = wrpr->cdr;
-	if (cdr->dngls[0]->id < cdr->dngls[1]->id)
-	{
-		if (ft_get_running_state(wrpr->system))
-			pthread_mutex_lock(&cdr->dngls[0]->lock);
-		if (ft_get_running_state(wrpr->system))
-			ft_print_took_dngl(wrpr);
-		if (ft_get_running_state(wrpr->system))
-			pthread_mutex_lock(&cdr->dngls[1]->lock);
-		if (ft_get_running_state(wrpr->system))
-			ft_print_took_dngl(wrpr);
-		return ;
-	}
-	if (ft_get_running_state(wrpr->system))
-		pthread_mutex_lock(&cdr->dngls[1]->lock);
-	if (ft_get_running_state(wrpr->system))
-		ft_print_took_dngl(wrpr);
-	if (ft_get_running_state(wrpr->system))
-		pthread_mutex_lock(&cdr->dngls[0]->lock);
-	if (ft_get_running_state(wrpr->system))
-		ft_print_took_dngl(wrpr);
-	return ;
-}
 
 t_dngl_info	*ft_generate_dngls_info(t_parameters *prm)
 {
@@ -55,6 +27,11 @@ t_dngl_info	*ft_generate_dngls_info(t_parameters *prm)
 		dngls[i].held = 0;
 		dngls[i].cooldown = prm->dngl_cooldown;
 		dngls[i].free_at = 0;
+		dngls[i].queue = (t_queue *) malloc(sizeof(t_queue));
+		dngls[i].queue->node = NULL;
+		dngls[i].queue->cur_req = NULL;
+		pthread_mutex_init(&dngls[i].queue->lock, NULL);
+		pthread_cond_init(&dngls[i].cond, NULL);
 		pthread_mutex_init(&dngls[i].lock, NULL);
 		i++;
 	}

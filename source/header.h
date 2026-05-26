@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 12:45:07 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/26 16:28:34 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,9 @@ typedef struct s_dngl_info
 	int				held;
 	long long		free_at;
 	int				cooldown;
+	struct s_queue	*queue;
 	pthread_mutex_t	lock;
+	pthread_cond_t	cond;
 }					t_dngl_info;
 
 typedef struct s_cdr_info
@@ -48,6 +50,7 @@ typedef struct s_cdr_info
 	long long		last_compile;
 	int				req_met;
 	t_dngl_info		*dngls[2];
+	int				held_dngls[2];
 	pthread_cond_t	cond;
 	pthread_mutex_t	lock;
 }		t_cdr_info;
@@ -98,6 +101,20 @@ typedef struct s_cdr_wrpr
 	t_system	*system;
 	t_cdr_info	*cdr;
 }				t_cdr_wrpr;
+
+typedef struct s_dngl_wrpr
+{
+	t_system	*system;
+	t_dngl_info	*dngl;
+}				t_dngl_wrpr;
+
+void	ft_wait_for_dongles(t_cdr_info *cdr, t_system *sys);
+t_dngl_info	*ft_get_right_dongle(t_dngl_info *dngls[2]);
+t_dngl_info	*ft_get_left_dongle(t_dngl_info *dngls[2]);
+int	ft_got_dongle(t_dngl_info *dngl, t_cdr_info *cdr);
+t_dngl_info	*ft_get_sorted_dongles(t_dngl_info *dngls[2]);
+
+void	*ft_dongle(void *arg);
 
 t_system		*ft_init_system(t_system *system, int argc, char **argv);
 t_parameters	*ft_parse(int argc, char **argv);
