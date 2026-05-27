@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/27 14:52:03 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 19:21:51 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,11 +107,10 @@ typedef struct s_dngl_wrpr
 	t_dngl_info	*dngl;
 }				t_dngl_wrpr;
 
-void	ft_wait_for_dongles(t_cdr_wrpr *wrpr);
-int	ft_got_dongle(t_dngl_info *dngl, t_cdr_info *cdr);
-t_dngl_info	**ft_get_sorted_dongles(t_dngl_info *dngls[2], t_dngl_info **sort);
+void			ft_wait_for_dongles(t_cdr_wrpr *wrpr);
+int				ft_got_dongle(t_dngl_info *dngl, t_cdr_info *cdr);
 
-void	*ft_dongle(void *arg);
+void			*ft_dongle(void *arg);
 
 t_system		*ft_init_system(t_system *system, int argc, char **argv);
 t_parameters	*ft_parse(int argc, char **argv);
@@ -137,7 +136,7 @@ int				ft_refactor(t_cdr_wrpr *wrpr);
 int				ft_debug(t_cdr_wrpr *wrpr);
 int				ft_compile(t_cdr_wrpr *wrpr);
 void			ft_wait(t_system *system);
-void    		*ft_single_coder_routine(t_cdr_wrpr *wrpr);
+void			*ft_single_coder_routine(t_cdr_wrpr *wrpr);
 int				ft_queue_len(t_queue *queue);
 void			ft_print_dngl_state(t_cdr_wrpr *wrpr, char *state);
 void			ft_print_took_dngl(t_cdr_wrpr *wrpr);
@@ -148,7 +147,12 @@ long long		ft_get_time(void);
 void			ft_precise_usleep(long long time_in_ms, t_system *sys);
 int				ft_get_running_state(t_system *sys);
 void			ft_stop_system(t_system *sys);
+int				ft_wait_for_dongle_cooldown(t_dngl_info *dngl, t_system *sys);
+int				ft_grab_dongle(t_dngl_info *dngl, t_request *req);
 void			ft_free(t_system *system);
 void			ft_free_queue(t_queue *queue);
+void			ft_set_lr_dngls(t_cdr_info *c, t_dngl_info *d, int i, int nbc);
+t_request		*ft_get_fifo_req(t_request *cur);
+t_request		*ft_get_edf_req(t_request *cur);
 
 #endif

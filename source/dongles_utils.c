@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:44 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/27 15:22:49 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 17:37:19 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,4 +66,19 @@ void	ft_print_dngl_state(t_cdr_wrpr *wrpr, char *state)
 	if (ft_get_running_state(sys))
 		printf("%lli %i is %s\n", now, cdr->id, state);
 	pthread_mutex_unlock(&sys->output->lock);
+}
+
+void	ft_give_back_dongles(t_cdr_info *cdr)
+{
+	ft_give_dongle(cdr->dngls[1]);
+	ft_give_dongle(cdr->dngls[0]);
+}
+
+void	ft_give_dongle(t_dngl_info *dngl)
+{
+	pthread_mutex_lock(&dngl->lock);
+	dngl->held = 0;
+	dngl->free_at = ft_get_time() + dngl->cooldown;
+	pthread_cond_broadcast(&dngl->cond);
+	pthread_mutex_unlock(&dngl->lock);
 }

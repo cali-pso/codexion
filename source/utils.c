@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:26 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/27 13:32:15 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 19:29:47 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ void	ft_free(t_system *system)
 		pthread_cond_destroy(&system->cdrs_info[i].cond);
 		pthread_mutex_destroy(&system->dngls_info[i].lock);
 		pthread_mutex_destroy(&system->dngls_info[i].queue->lock);
+		ft_free_queue(system->dngls_info[i].queue);
 		free(system->dngls_info[i].queue);
 		i++;
 	}
@@ -35,21 +36,6 @@ void	ft_free(t_system *system)
 	free(system->output);
 	pthread_mutex_destroy(&system->lock);
 	free(system);
-}
-
-void	ft_free_queue(t_queue *queue)
-{
-	t_request	*cur;
-	t_request	*prev;
-
-	cur = queue->node;
-	while (cur)
-	{
-		prev = cur;
-		cur = cur->next;
-		free(prev);
-	}
-	return ;
 }
 
 void	ft_wait(t_system *system)

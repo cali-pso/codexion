@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 18:25:23 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/27 15:05:32 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 19:28:04 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,28 +20,42 @@ t_request	*ft_get_priority_req(char *scheduler, t_queue *queue)
 	cur = queue->node;
 	prior = cur;
 	if (strcmp(scheduler, "fifo") == 0)
-	{
-		while (cur)
-		{
-			if (prior->timestamp < cur->timestamp)
-				prior = cur;
-			else if (prior->timestamp == cur->timestamp)
-				if (prior->cdr->id < cur->cdr->id)
-					prior = cur;
-			cur = cur->next;
-		}
-	}
+		return (ft_get_fifo_req(cur));
 	else if (strcmp(scheduler, "edf") == 0)
+		return (ft_get_edf_req(cur));
+	return (prior);
+}
+
+t_request	*ft_get_edf_req(t_request *cur)
+{
+	t_request	*prior;
+
+	prior = cur;
+	while (cur)
 	{
-		while (cur)
-		{
-			if (prior->deadline > cur->deadline)
+		if (prior->deadline > cur->deadline)
+			prior = cur;
+		else if (prior->deadline == cur->deadline)
+			if (prior->cdr->id < cur->cdr->id)
 				prior = cur;
-			else if (prior->deadline == cur->deadline)
-				if (prior->cdr->id < cur->cdr->id)
-					prior = cur;
-			cur = cur->next;
-		}
+		cur = cur->next;
+	}
+	return (prior);
+}
+
+t_request	*ft_get_fifo_req(t_request *cur)
+{
+	t_request	*prior;
+
+	prior = cur;
+	while (cur)
+	{
+		if (prior->timestamp < cur->timestamp)
+			prior = cur;
+		else if (prior->timestamp == cur->timestamp)
+			if (prior->cdr->id < cur->cdr->id)
+				prior = cur;
+		cur = cur->next;
 	}
 	return (prior);
 }
@@ -54,52 +68,4 @@ t_request	*ft_get_queue_last(t_queue *queue)
 	while (last && last->next)
 		last = last->next;
 	return (last);
-}
-
-void	ft_push_node(t_queue *queue, t_request *node)
-{
-	if (!queue)
-		return ;
-	else if (!queue->node)
-		queue->node = node;
-	else
-	{
-		queue->node->prev = node;
-		node->next = queue->node;
-		queue->node = node;
-	}
-	return ;
-}
-
-void	ft_pop_node(t_queue *queue, t_request *node)
-{
-	t_request	*next;
-	t_request	*prev;
-
-	if (!node)
-		return ;
-	next = node->next;
-	prev = node->prev;
-	if (prev)
-		prev->next = next;
-	if (next)
-		next->prev = prev;
-	if (queue->node == node)
-		queue->node = next;
-	return ;
-}
-
-int	ft_queue_len(t_queue *queue)
-{
-	int			i;
-	t_request	*cur;
-
-	i = 0;
-	cur = queue->node;
-	while (cur)
-	{
-		i++;
-		cur = cur->next;
-	}
-	return (i);
 }

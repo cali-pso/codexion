@@ -4,6 +4,7 @@ SRC = source/main.c \
 	  source/parser.c \
 	  source/coders.c \
 	  source/queue.c \
+	  source/queue_utils.c \
 	  source/dongles.c \
 	  source/monitor.c \
 	  source/system.c \
@@ -15,7 +16,7 @@ CC = cc
 
 CCARGS = -Wall -Wextra -Werror -pthread
 
-ARGS = 5 500 100 100 100 10 50 edf
+ARGS = 5 600 100 100 100 10 50 edf
 
 all: $(NAME)
 

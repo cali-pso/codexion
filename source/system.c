@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:38 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/27 13:10:43 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 19:34:41 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,10 @@ t_system	*ft_init_system(t_system *sys, int argc, char **argv)
 		return (NULL);
 	sys->param = ft_parse(argc, argv);
 	if (!sys->param)
+	{
+		free(sys);
 		return (NULL);
+	}
 	sys->dngls_info = ft_generate_dngls_info(sys->param);
 	sys->cdrs_info = ft_generate_cdrs_info(sys->param, sys->dngls_info);
 	sys->output = (t_output *) malloc(sizeof(t_output));
