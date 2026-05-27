@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 18:51:31 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 14:52:03 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,8 @@ typedef struct s_cdr_info
 typedef struct s_request
 {
 	t_cdr_info			*cdr;
-	int					deadline;
+	long long			deadline;
+	long long			timestamp;
 	struct s_request	*next;
 	struct s_request	*prev;
 }						t_request;
@@ -106,7 +107,7 @@ typedef struct s_dngl_wrpr
 	t_dngl_info	*dngl;
 }				t_dngl_wrpr;
 
-void	ft_wait_for_dongles(t_cdr_info *cdr, t_system *sys);
+void	ft_wait_for_dongles(t_cdr_wrpr *wrpr);
 int	ft_got_dongle(t_dngl_info *dngl, t_cdr_info *cdr);
 t_dngl_info	**ft_get_sorted_dongles(t_dngl_info *dngls[2], t_dngl_info **sort);
 
@@ -140,10 +141,11 @@ void    		*ft_single_coder_routine(t_cdr_wrpr *wrpr);
 int				ft_queue_len(t_queue *queue);
 void			ft_print_dngl_state(t_cdr_wrpr *wrpr, char *state);
 void			ft_print_took_dngl(t_cdr_wrpr *wrpr);
-void			ft_take_dngl(t_dngl_info *dngl, t_cdr_info *cdr, t_system *sys);
+void			ft_take_dngl(t_dngl_info *dngl, t_cdr_wrpr *wrpr);
 void			ft_give_dongle(t_dngl_info *dngl);
 void			ft_give_back_dongles(t_cdr_info *cdr);
 long long		ft_get_time(void);
+void			ft_precise_usleep(long long time_in_ms, t_system *sys);
 int				ft_get_running_state(t_system *sys);
 void			ft_stop_system(t_system *sys);
 void			ft_free(t_system *system);

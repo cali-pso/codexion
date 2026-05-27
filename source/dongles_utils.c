@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:44 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 16:37:46 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 15:22:49 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ t_dngl_info	*ft_generate_dngls_info(t_parameters *prm)
 		dngls[i].queue->node = NULL;
 		dngls[i].queue->cur_req = NULL;
 		pthread_mutex_init(&dngls[i].queue->lock, NULL);
+		pthread_cond_init(&dngls[i].queue->cond, NULL);
 		pthread_cond_init(&dngls[i].cond, NULL);
 		pthread_mutex_init(&dngls[i].lock, NULL);
 		i++;

@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:26 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 18:59:30 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 13:32:15 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,4 +96,17 @@ long long	ft_get_time(void)
 		return (-1);
 	time_in_ms = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 	return (time_in_ms);
+}
+
+void	ft_precise_usleep(long long time_in_ms, t_system *sys)
+{
+	long long	start;
+
+	start = ft_get_time();
+	while (ft_get_running_state(sys))
+	{
+		if (ft_get_time() - start >= time_in_ms)
+			break ;
+		usleep(100);
+	}
 }

@@ -15,7 +15,7 @@ CC = cc
 
 CCARGS = -Wall -Wextra -Werror -pthread
 
-ARGS = 5 403 100 100 100 10 50 edf
+ARGS = 5 500 100 100 100 10 50 edf
 
 all: $(NAME)
 

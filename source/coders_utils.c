@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:01:03 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 12:27:21 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 15:34:46 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,28 @@ t_cdr_info	*ft_generate_cdrs_info(t_parameters *prm, t_dngl_info *dngls)
 {
 	t_cdr_info	*cdrs_info;
 	t_cdr_info	*cdr;
-	int			nb_cdrs;
+	int			left;
+	int			right;
 	int			i;
 
-	nb_cdrs = prm->nb_cdrs;
-	cdrs_info = (t_cdr_info *) malloc(sizeof(t_cdr_info) * nb_cdrs);
+	cdrs_info = (t_cdr_info *) malloc(sizeof(t_cdr_info) * prm->nb_cdrs);
 	i = 0;
-	while (i < nb_cdrs)
+	while (i < prm->nb_cdrs)
 	{
 		cdr = &cdrs_info[i];
 		cdr->id = i + 1;
-		cdr->dngls[0] = &dngls[i];
-		cdr->dngls[1] = &dngls[(i + nb_cdrs + 1) % nb_cdrs];
+		right = i;
+		left = (i + prm->nb_cdrs + 1) % prm->nb_cdrs;
+		if (right > left)
+		{
+			cdr->dngls[0] = &dngls[left];
+			cdr->dngls[1] = &dngls[right];
+		}
+		else
+		{
+			cdr->dngls[0] = &dngls[right];
+			cdr->dngls[1] = &dngls[left];
+		}
 		cdr->last_compile = 0;
 		cdr->compiles_done = 0;
 		cdr->req_met = 0;

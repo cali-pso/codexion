@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:33:55 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/26 19:00:06 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 15:38:44 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	*ft_coder(void *arg)
         return (ft_single_coder_routine((t_cdr_wrpr *) arg));
 	while (ft_is_coder_done(self, system))
 	{
-		ft_wait_for_dongles(self, system);
+		ft_wait_for_dongles((t_cdr_wrpr *) arg);
 		if (!ft_compile((t_cdr_wrpr *) arg))
 			break ;
 		ft_give_back_dongles(self);
@@ -38,12 +38,8 @@ void	*ft_coder(void *arg)
 
 void	ft_give_back_dongles(t_cdr_info *cdr)
 {
-	t_dngl_info **sort_dngls;
-
-	sort_dngls = NULL;
-	sort_dngls = ft_get_sorted_dongles(cdr->dngls, sort_dngls);
-	ft_give_dongle(sort_dngls[0]);
-	ft_give_dongle(sort_dngls[1]);
+	ft_give_dongle(cdr->dngls[1]);
+	ft_give_dongle(cdr->dngls[0]);
 }
 
 void	ft_give_dongle(t_dngl_info *dngl)
@@ -55,59 +51,59 @@ void	ft_give_dongle(t_dngl_info *dngl)
 	pthread_mutex_unlock(&dngl->lock);
 }
 
-void	ft_wait_for_dongles(t_cdr_info *cdr, t_system *system)
+void	ft_wait_for_dongles(t_cdr_wrpr *wrpr)
 {
-	t_dngl_info	**sort_dngls;
+	t_cdr_info	*cdr;
 
-	sort_dngls = NULL;
-	sort_dngls = ft_get_sorted_dongles(cdr->dngls, sort_dngls);
-	ft_take_dngl(sort_dngls[0], cdr, system);
-	ft_take_dngl(sort_dngls[1], cdr, system);
+	cdr = wrpr->cdr;
+	ft_take_dngl(cdr->dngls[0], wrpr);
+	if (ft_get_running_state(wrpr->system))
+		ft_print_took_dngl(wrpr);
+	ft_take_dngl(cdr->dngls[1], wrpr);
+	if (ft_get_running_state(wrpr->system))
+		ft_print_took_dngl(wrpr);
 }
 
-void	ft_take_dngl(t_dngl_info *dngl, t_cdr_info *cdr, t_system *sys)
+void	ft_take_dngl(t_dngl_info *dngl, t_cdr_wrpr *wrpr)
 {
+	t_cdr_info	*cdr;
+	t_system	*sys;
 	t_request	*my_req;
 	t_request	*prio_req;
-	long long	now;
+	long long	to_wait;
 
+	cdr = wrpr->cdr;
+	sys = wrpr->system;
 	my_req = ft_create_request(dngl->queue, cdr, sys->param->tt_burnout);
 	pthread_mutex_lock(&dngl->lock);
 	while (ft_get_running_state(sys))
 	{
+		pthread_mutex_lock(&dngl->queue->lock);
 		prio_req = ft_get_priority_req(sys->param->scheduler, dngl->queue);
-		now = ft_get_time();
-		if (&prio_req->cdr == &cdr && dngl->held == 0 && dngl->free_at <= now)
+		pthread_mutex_unlock(&dngl->queue->lock);
+		if (prio_req && prio_req->cdr->id == cdr->id && dngl->held == 0)
 		{
-			dngl->held = 1;
-			ft_pop_node(dngl->queue, my_req);
-			free(my_req);
-			break ;
+			if (dngl->free_at <= ft_get_time())
+			{
+				dngl->held = 1;
+				pthread_mutex_lock(&dngl->queue->lock);
+				ft_pop_node(dngl->queue, my_req);
+				pthread_mutex_unlock(&dngl->queue->lock);
+				free(my_req);
+				break ;
+			}
+			else
+			{
+				to_wait = dngl->free_at - ft_get_time();
+				pthread_mutex_unlock(&dngl->lock);
+				ft_precise_usleep(to_wait, sys);
+				pthread_mutex_lock(&dngl->lock);
+				continue ;
+			}
 		}
 		pthread_cond_wait(&dngl->cond, &dngl->lock);
 	}
 	pthread_mutex_unlock(&dngl->lock);
-}
-
-t_dngl_info	**ft_get_sorted_dongles(t_dngl_info *dngls[2], t_dngl_info **sort)
-{
-	sort = (t_dngl_info **) malloc(sizeof(t_dngl_info *) * 2);
-
-	pthread_mutex_lock(&dngls[0]->lock);
-	pthread_mutex_lock(&dngls[1]->lock);
-	if (dngls[0]->id > dngls[1]->id)
-	{
-		sort[0] = dngls[0];
-		sort[1] = dngls[1];
-	}
-	else
-	{
-		sort[0] = dngls[1];
-		sort[1] = dngls[0];
-	}
-	pthread_mutex_unlock(&dngls[0]->lock);
-	pthread_mutex_unlock(&dngls[1]->lock);
-	return (sort);
 }
 
 int	ft_got_dongle(t_dngl_info *dngl, t_cdr_info *cdr)
@@ -134,7 +130,7 @@ int	ft_compile(t_cdr_wrpr *wrpr)
 	pthread_mutex_lock(&self->lock);
 	self->last_compile = ft_get_time() - system->start_time;
 	pthread_mutex_unlock(&self->lock);
-	usleep(system->param->tt_compile * 1000);
+	ft_precise_usleep(system->param->tt_compile, system);
 	pthread_mutex_lock(&self->lock);
 	self->compiles_done++;
 	pthread_mutex_unlock(&self->lock);
@@ -153,7 +149,7 @@ int	ft_debug(t_cdr_wrpr *wrpr)
 	pthread_mutex_lock(&system->lock);
 	tt_debug = system->param->tt_debug;
 	pthread_mutex_unlock(&system->lock);
-	usleep(tt_debug * 1000);
+	ft_precise_usleep(tt_debug, system);
 	if (!ft_get_running_state(system))
 		return (0);
 	return (1);
@@ -165,7 +161,7 @@ int	ft_refactor(t_cdr_wrpr *wrpr)
 
 	system = wrpr->system;
 	ft_print_dngl_state(wrpr, "refactoring");
-	usleep(system->param->tt_refactor * 1000);
+	ft_precise_usleep(system->param->tt_refactor, system);
 	if (!ft_get_running_state(system))
 		return (0);
 	return (1);
@@ -178,6 +174,7 @@ t_request	*ft_create_request(t_queue *queue, t_cdr_info *cdr, int tt_bo)
 	to_push = (t_request *) malloc(sizeof(t_request));
 	to_push->cdr = cdr;
 	to_push->deadline = cdr->last_compile + tt_bo;
+	to_push->timestamp = ft_get_time();
 	to_push->next = NULL;
 	to_push->prev = NULL;
 	pthread_mutex_lock(&queue->lock);

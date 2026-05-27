@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 18:25:23 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/19 14:54:09 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/27 15:05:32 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,32 @@ t_request	*ft_get_priority_req(char *scheduler, t_queue *queue)
 	t_request	*prior;
 	t_request	*cur;
 
-	prior = NULL;
 	cur = queue->node;
-	while (cur)
+	prior = cur;
+	if (strcmp(scheduler, "fifo") == 0)
 	{
-		if (strcmp(scheduler, "fifo") == 0)
-			prior = cur;
-		else if (!prior || cur->deadline < prior->deadline)
-			prior = cur;
-		else if (cur->deadline == prior->deadline)
-			if (cur->cdr->id < prior->cdr->id)
+		while (cur)
+		{
+			if (prior->timestamp < cur->timestamp)
 				prior = cur;
-		cur = cur->next;
+			else if (prior->timestamp == cur->timestamp)
+				if (prior->cdr->id < cur->cdr->id)
+					prior = cur;
+			cur = cur->next;
+		}
 	}
-	ft_pop_node(queue, prior);
+	else if (strcmp(scheduler, "edf") == 0)
+	{
+		while (cur)
+		{
+			if (prior->deadline > cur->deadline)
+				prior = cur;
+			else if (prior->deadline == cur->deadline)
+				if (prior->cdr->id < cur->cdr->id)
+					prior = cur;
+			cur = cur->next;
+		}
+	}
 	return (prior);
 }
 
