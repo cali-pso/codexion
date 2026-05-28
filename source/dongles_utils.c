@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:44 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/27 17:37:19 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/28 14:18:51 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,8 @@ void	ft_print_took_dngl(t_cdr_wrpr *wrpr)
 	sys = wrpr->system;
 	now = ft_get_time() - sys->start_time;
 	pthread_mutex_lock(&sys->output->lock);
-	printf("%lli %i has taken a dongle\n", now, cdr->id);
+	if (ft_get_running_state(sys))
+		printf("%lli %i has taken a dongle\n", now, cdr->id);
 	pthread_mutex_unlock(&sys->output->lock);
 }
 
