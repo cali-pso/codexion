@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:01:03 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/28 14:17:17 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/29 12:55:54 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ void	ft_set_lr_dngls(t_cdr_info *c, t_dngl_info *d, int i, int nbc)
 	}
 	return ;
 }
-
 
 pthread_t	*ft_init_coders(t_system *system)
 {

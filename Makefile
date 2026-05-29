@@ -1,7 +1,6 @@
 NAME = codexion
 
-SRC = source/main.c \
-	  source/parser.c \
+SRC = source/parser.c \
 	  source/coders.c \
 	  source/queue.c \
 	  source/queue_utils.c \
@@ -10,26 +9,32 @@ SRC = source/main.c \
 	  source/system.c \
 	  source/utils.c \
 	  source/coders_utils.c \
-	  source/dongles_utils.c
+	  source/main.c \
+	  source/dongles_utils.c \
+
+OBJ = $(SRC:%.c=%.o)
 
 CC = cc
 
-CCARGS = -Wall -Wextra -Werror -pthread
+CCARGS =-Wall -Wextra -Werror -pthread
 
-ARGS = 5 600 100 100 100 10 50 edf
+ARGS = 5 450 100 100 100 10 50 edf
 
 all: $(NAME)
 
-$(NAME): 
-	$(CC) $(CCARGS) $(SRC) -o $(NAME)
+$(NAME): $(OBJ)
+	$(CC) $(CCARGS) $(OBJ) -o $@
+
+%.o: %.c
+	$(CC) $(CCARGS) -c $< -o $@
 
 run: clean $(NAME)
 	./$(NAME) $(ARGS)
 
 clean:
-	- rm codexion
+	- rm -f $(OBJ) 
 
-fclean:
-	- rm -f codexion
+fclean: clean
+	- rm -f $(NAME)
 
 re: fclean all

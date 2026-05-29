@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 18:25:23 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/27 19:28:04 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/05/29 14:34:55 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,14 +58,4 @@ t_request	*ft_get_fifo_req(t_request *cur)
 		cur = cur->next;
 	}
 	return (prior);
-}
-
-t_request	*ft_get_queue_last(t_queue *queue)
-{
-	t_request	*last;
-
-	last = queue->node;
-	while (last && last->next)
-		last = last->next;
-	return (last);
 }
