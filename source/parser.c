@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 18:23:21 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/17 18:25:07 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/06/01 14:37:20 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ int	ft_check_numbers(char **argv)
 	{
 		y = 0;
 		len = strlen(argv[i]);
+		if (len == 1 && argv[i][y] == '0')
+			return (0);
 		while (y < len)
 		{
 			if (!argv[i][y] || (argv[i][y] < '0' || argv[i][y] > '9'))
