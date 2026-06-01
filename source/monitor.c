@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:01:20 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/06/01 14:17:13 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/06/01 18:23:13 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ void	*ft_monitor(void *arg)
 		while (i < sys->param->nb_cdrs)
 		{
 			if (ft_check_for_burnout(i, sys))
+				return (NULL);
+			else if (ft_are_coders_done(sys))
 				return (NULL);
 			i++;
 		}
