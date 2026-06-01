@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:37:34 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/29 14:37:45 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/06/01 12:52:34 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ typedef struct s_dngl_wrpr
 	t_system	*system;
 	t_dngl_info	*dngl;
 }				t_dngl_wrpr;
-
 
 void			*ft_monitor(void *arg);
 int				ft_check_for_burnout(int i, t_system *sys);

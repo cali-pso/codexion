@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:26 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/29 16:55:01 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/06/01 13:51:17 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int	ft_are_coders_done(t_system *sys)
 	while (i < nb_cdrs)
 	{
 		pthread_mutex_lock(&sys->cdrs_info[i].lock);
-		if (sys->cdrs_info[i].compiles_done == sys->param->nb_compiles_required)
+		if (sys->cdrs_info[i].compiles_done >= sys->param->nb_compiles_required)
 			cdrs_done++;
 		pthread_mutex_unlock(&sys->cdrs_info[i].lock);
 		i++;

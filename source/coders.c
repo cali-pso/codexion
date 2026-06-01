@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 17:33:55 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/27 18:44:20 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/06/01 14:19:29 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ void	*ft_coder(void *arg)
 		if (!ft_compile((t_cdr_wrpr *) arg))
 			break ;
 		ft_give_back_dongles(self);
+		if (self->compiles_done == system->param->nb_compiles_required)
+			break ;
 		if (!ft_debug((t_cdr_wrpr *) arg))
 			break ;
 		if (!ft_refactor((t_cdr_wrpr *) arg))

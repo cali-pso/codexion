@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:01:03 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/05/29 17:05:25 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/06/01 12:52:27 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ pthread_t	*ft_init_coders(t_system *system)
 
 int	ft_is_coder_done(t_cdr_info *cdr, t_system *sys)
 {
-	int done;
+	int	done;
 
 	pthread_mutex_lock(&cdr->lock);
 	done = cdr->compiles_done;

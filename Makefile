@@ -18,8 +18,6 @@ CC = cc
 
 CCARGS =-Wall -Wextra -Werror -pthread
 
-ARGS = 5 450 100 100 100 10 50 edf
-
 all: $(NAME)
 
 $(NAME): $(OBJ)
@@ -27,9 +25,6 @@ $(NAME): $(OBJ)
 
 %.o: %.c
 	$(CC) $(CCARGS) -c $< -o $@
-
-run: clean $(NAME)
-	./$(NAME) $(ARGS)
 
 clean:
 	- rm -f $(OBJ) 
