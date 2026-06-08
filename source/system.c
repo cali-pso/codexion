@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/25 17:00:38 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/06/08 11:52:43 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/06/08 14:14:02 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,10 @@ void	ft_stop_system(t_system *sys)
 	i = 0;
 	while (i < sys->param->nb_cdrs)
 	{
-		pthread_cond_broadcast(&sys->cdrs_info[i].dngls[1]->cond);
+		if (sys->cdrs_info[i].dngls[0]->held)
+			pthread_cond_broadcast(&sys->cdrs_info[i].dngls[0]->cond);
+		if (sys->cdrs_info[i].dngls[1]->held)
+			pthread_cond_broadcast(&sys->cdrs_info[i].dngls[1]->cond);
 		i++;
 	}
 }
