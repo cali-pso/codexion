@@ -6,7 +6,7 @@
 /*   By: rapoggi <rapoggi@student.42perpignan.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 18:23:21 by rapoggi           #+#    #+#             */
-/*   Updated: 2026/06/01 18:18:35 by rapoggi          ###   ########.fr       */
+/*   Updated: 2026/06/08 12:25:24 by rapoggi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,8 @@ int	ft_check_numbers(char **argv)
 				return (0);
 			y++;
 		}
+		if (atoi(argv[i]) == 0)
+			return (0);
 		i++;
 	}
 	return (1);
