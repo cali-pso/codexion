@@ -64,10 +64,22 @@ void	ft_stop_system(t_system *sys)
 	i = 0;
 	while (i < sys->param->nb_cdrs)
 	{
+        pthread_mutex_lock(&sys->cdrs_info[i].dngls[0]->lock);
 		if (sys->cdrs_info[i].dngls[0]->held)
+        {
 			pthread_cond_broadcast(&sys->cdrs_info[i].dngls[0]->cond);
+            pthread_mutex_unlock(&sys->cdrs_info[i].dngls[0]->lock);
+        }
+        else
+            pthread_mutex_unlock(&sys->cdrs_info[i].dngls[0]->lock);
+        pthread_mutex_lock(&sys->cdrs_info[i].dngls[1]->lock);
 		if (sys->cdrs_info[i].dngls[1]->held)
+        {
 			pthread_cond_broadcast(&sys->cdrs_info[i].dngls[1]->cond);
+            pthread_mutex_unlock(&sys->cdrs_info[i].dngls[1]->lock);
+        }
+        else
+            pthread_mutex_unlock(&sys->cdrs_info[i].dngls[1]->lock);
 		i++;
 	}
 }
